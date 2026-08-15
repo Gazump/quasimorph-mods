@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build + deploy",
+      "detail": "Compile the mod and copy it into the game's LocalUserPresets folder",
+      "type": "shell",
+      "command": "dotnet",
+      "args": ["build", "${workspaceFolder}/QuasimorphMods.sln"],
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build only",
+      "detail": "Compile without deploying to the game",
+      "type": "shell",
+      "command": "dotnet",
+      "args": ["build", "${workspaceFolder}/QuasimorphMods.sln", "/p:QmDeploy=false"],
+      "group": "build",
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "tail Player.log",
+      "detail": "Follow the game's log - Debug.Log output from the mod lands here",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-Command",
+        "Get-Content \"$env:USERPROFILE\\AppData\\LocalLow\\Magnum Scriptum Ltd\\Quasimorph\\Player.log\" -Wait -Tail 40"
+      ],
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}

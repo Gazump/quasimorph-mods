@@ -1,0 +1,13 @@
+bin/
+obj/
+.vs/
+*.user
+
+# Local machine paths
+Directory.Build.user.props
+
+# Staging area for workshop uploads
+publish/
+
+# Decompiled game code. Never commit this: it is Magnum Scriptum's, not ours.
+reference/

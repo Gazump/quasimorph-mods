@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>LootTracker</AssemblyName>
+    <RootNamespace>LootTracker</RootNamespace>
+    <UniqueModName>LootTracker</UniqueModName>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="modmanifest.json" />
+    <None Include="thumbnail.png" />
+  </ItemGroup>
+
+</Project>

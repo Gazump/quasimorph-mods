@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>SampleMod</AssemblyName>
+    <RootNamespace>SampleMod</RootNamespace>
+    <!-- Must match UniqueModName in modmanifest.json. Letters, digits and underscore only. -->
+    <UniqueModName>SampleMod</UniqueModName>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="modmanifest.json" />
+    <None Include="thumbnail.png" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,111 @@
+<Project>
+
+  <!-- Machine-specific overrides go in Directory.Build.user.props, which is not tracked. -->
+  <Import Project="$(MSBuildThisFileDirectory)Directory.Build.user.props"
+          Condition="Exists('$(MSBuildThisFileDirectory)Directory.Build.user.props')" />
+
+  <PropertyGroup Condition="'$(QuasimorphDir)' == ''">
+    <_Qm1>C:\Program Files (x86)\Steam\steamapps\common\Quasimorph</_Qm1>
+    <_Qm2>C:\Program Files\Steam\steamapps\common\Quasimorph</_Qm2>
+    <_Qm3>D:\SteamLibrary\steamapps\common\Quasimorph</_Qm3>
+    <_Qm4>D:\Steam\steamapps\common\Quasimorph</_Qm4>
+    <_Qm5>E:\SteamLibrary\steamapps\common\Quasimorph</_Qm5>
+    <_Qm6>E:\Steam\steamapps\common\Quasimorph</_Qm6>
+    <QuasimorphDir Condition="Exists('$(_Qm1)')">$(_Qm1)</QuasimorphDir>
+    <QuasimorphDir Condition="'$(QuasimorphDir)' == '' AND Exists('$(_Qm2)')">$(_Qm2)</QuasimorphDir>
+    <QuasimorphDir Condition="'$(QuasimorphDir)' == '' AND Exists('$(_Qm3)')">$(_Qm3)</QuasimorphDir>
+    <QuasimorphDir Condition="'$(QuasimorphDir)' == '' AND Exists('$(_Qm4)')">$(_Qm4)</QuasimorphDir>
+    <QuasimorphDir Condition="'$(QuasimorphDir)' == '' AND Exists('$(_Qm5)')">$(_Qm5)</QuasimorphDir>
+    <QuasimorphDir Condition="'$(QuasimorphDir)' == '' AND Exists('$(_Qm6)')">$(_Qm6)</QuasimorphDir>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <QuasimorphManagedDir>$(QuasimorphDir)\Quasimorph_Data\Managed</QuasimorphManagedDir>
+    <QuasimorphLocalModsDir>$(USERPROFILE)\AppData\LocalLow\Magnum Scriptum Ltd\Quasimorph\LocalUserPresets</QuasimorphLocalModsDir>
+
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <DebugType>portable</DebugType>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <NoWarn>$(NoWarn);MSB3277;CS0436;NU1701</NoWarn>
+  </PropertyGroup>
+
+  <Target Name="QmCheckGamePath" BeforeTargets="ResolveReferences"
+          Condition="!Exists('$(QuasimorphManagedDir)\Assembly-CSharp.dll')">
+    <Error Text="Quasimorph not found at '$(QuasimorphDir)'. Create Directory.Build.user.props with a &lt;QuasimorphDir&gt; property, or pass /p:QuasimorphDir=..." />
+  </Target>
+
+  <!-- Private=false: shipping copies of these alongside a mod breaks the game. -->
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(QuasimorphManagedDir)\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>$(QuasimorphManagedDir)\Assembly-CSharp-firstpass.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(QuasimorphManagedDir)\UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(QuasimorphManagedDir)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(QuasimorphManagedDir)\UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>$(QuasimorphManagedDir)\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>$(QuasimorphManagedDir)\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(QuasimorphManagedDir)\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(QuasimorphManagedDir)\Unity.TextMeshPro.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SimpleJSON">
+      <HintPath>$(QuasimorphManagedDir)\SimpleJSON.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(QuasimorphManagedDir)\Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(QuasimorphManagedDir)\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="QmDeployToGame" AfterTargets="Build"
+          Condition="'$(QmDeploy)' != 'false' AND '$(UniqueModName)' != ''">
+    <PropertyGroup>
+      <_QmDest>$(QuasimorphLocalModsDir)\$(UniqueModName)</_QmDest>
+    </PropertyGroup>
+    <MakeDir Directories="$(_QmDest)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(_QmDest)" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\modmanifest.json" DestinationFolder="$(_QmDest)" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\thumbnail.png" DestinationFolder="$(_QmDest)"
+          Condition="Exists('$(MSBuildProjectDirectory)\thumbnail.png')" />
+    <ItemGroup>
+      <_QmExtra Include="$(MSBuildProjectDirectory)\content\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_QmExtra)" DestinationFiles="@(_QmExtra->'$(_QmDest)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Message Importance="high" Text="Deployed $(UniqueModName) -> $(_QmDest)" />
+  </Target>
+
+</Project>

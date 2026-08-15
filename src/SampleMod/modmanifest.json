@@ -1,0 +1,12 @@
+{
+  "UniqueModName": "SampleMod",
+  "Assemblies": [
+    "SampleMod.dll"
+  ],
+  "Dependencies": [],
+  "SteamTags": [
+    "Utility",
+    "1.0",
+    "1.0.1"
+  ]
+}

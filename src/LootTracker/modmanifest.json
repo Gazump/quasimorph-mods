@@ -1,0 +1,13 @@
+{
+  "UniqueModName": "LootTracker",
+  "Assemblies": [
+    "LootTracker.dll"
+  ],
+  "Dependencies": [],
+  "SteamTags": [
+    "Quality of Life",
+    "UI",
+    "1.0",
+    "1.0.1"
+  ]
+}
