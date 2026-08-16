@@ -11,6 +11,7 @@ Editor is involved, and the .NET SDK plus any editor is enough.
 
 | Mod | Description |
 |---|---|
+| [CombatPsychology](src/CombatPsychology) | Combat stress, breakdowns, fortitude, battle highs and treatments (sedatives, alcohol, smoking). |
 | [LootTracker](src/LootTracker) | Marks loot you don't already own, so duplicates are obvious at a glance. On the Workshop as *Have I got this?* |
 | [SampleMod](src/SampleMod) | Minimal template. Copy it to start a new mod. |
 

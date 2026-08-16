@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>CombatPsychology</AssemblyName>
+    <RootNamespace>CombatPsychology</RootNamespace>
+    <!-- Must match UniqueModName in modmanifest.json. Letters, digits and underscore only. -->
+    <UniqueModName>CombatPsychology</UniqueModName>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="modmanifest.json" />
+    <None Include="thumbnail.png" />
+  </ItemGroup>
+
+  <!-- Texture2D.LoadImage lives in the ImageConversion module, which the shared props do not reference. -->
+  <ItemGroup>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>$(QuasimorphManagedDir)\UnityEngine.ImageConversionModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>
