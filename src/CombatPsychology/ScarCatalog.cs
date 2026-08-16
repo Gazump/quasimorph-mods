@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace CombatPsychology
 {
@@ -6,27 +6,16 @@ namespace CombatPsychology
     {
         public string Id;
         public bool Positive;
-        /// <summary>Added to the merc's Fortitude while carried.</summary>
         public int FortitudeMod;
-        /// <summary>Multiplies all stress gain while carried (1 = neutral).</summary>
         public float StressGainMult = 1f;
-        /// <summary>Stress applied at the start of every raid.</summary>
         public int StartingStress;
-        /// <summary>Status effect (id, level) applied at the start of every raid.</summary>
         public string StartingStatusId;
         public int StartingStatusLevel;
-        /// <summary>Wound-effects carried all raid via the ScarsEffect buff (id → value).</summary>
         public Dictionary<string, float> WoundEffects;
-        /// <summary>Stress from explosion damage is multiplied by this (Shell Shock).</summary>
         public float ExplosionStressMult = 1f;
-        /// <summary>In-raid stress can never fall below this (Night Terrors).</summary>
         public int StressFloor;
-        /// <summary>Added to the per-turn breakdown chance at Terror.</summary>
         public float BreakdownChanceBonus;
-        /// <summary>Multiplies the lethal-breakdown roll (Death Wish).</summary>
         public float SuicideChanceMult = 1f;
-        /// <summary>True if minted by the normal trauma-threshold roll (Death Wish and the
-        /// positive scars have their own conditions instead).</summary>
         public bool InThresholdPool = true;
     }
 

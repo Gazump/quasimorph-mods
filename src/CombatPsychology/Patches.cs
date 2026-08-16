@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using HarmonyLib;
 using MGSC;
 using UnityEngine;
@@ -15,7 +15,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>Stress from wounds; amputation also causes Shock (stun + spike).</summary>
     [HarmonyPatch(typeof(WoundSystem), nameof(WoundSystem.AddWound))]
     internal static class WoundSystem_AddWound_Patch
     {
@@ -41,14 +40,11 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>Player got hit: stress per hit, Shock on massive hits, Battle Focus broken,
-    /// Adrenaline Rush the first time health drops critical.</summary>
     [HarmonyPatch(typeof(Player), nameof(Player.Injure))]
     internal static class Player_Injure_Patch
     {
         private static void Postfix(Player __instance, DamageHitInfo hitInfo)
         {
-            // A killing blow (including a breakdown suicide) needs no psychological reaction.
             if (hitInfo.finalDmg <= 0 || !__instance.CreatureData.Health.Alive)
             {
                 return;
@@ -83,7 +79,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>Player dealt damage: Battle Focus stacks up.</summary>
     [HarmonyPatch(typeof(Monster), nameof(Monster.Injure))]
     internal static class Monster_Injure_Patch
     {
@@ -107,7 +102,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>Kill tracking for Bloodlust.</summary>
     [HarmonyPatch(typeof(AchievementProgress), nameof(AchievementProgress.ProcessCreatureKilledByDamage))]
     internal static class Kill_Patch
     {
@@ -126,8 +120,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>Pain overflow: Second Wind may absorb the first stun of the raid; otherwise
-    /// the overwhelm adds stress on top of the vanilla stun.</summary>
     [HarmonyPatch(typeof(PainThreshold), "PainReaction")]
     internal static class PainReaction_Patch
     {
@@ -151,8 +143,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>The player's once-per-turn psychological tick, anchored to the always-present
-    /// PainThreshold effect: kill-window shift and the Terror breakdown roll.</summary>
     [HarmonyPatch(typeof(PainThreshold), nameof(PainThreshold.ProcessActionPoint))]
     internal static class TurnTick_Patch
     {
@@ -166,7 +156,6 @@ namespace CombatPsychology
             RaidState.OnPlayerTurnStarted();
             int level = StressSystem.GetLevel(player);
             RaidState.PeakStress = Mathf.Max(RaidState.PeakStress, level);
-            // Night Terrors: stress never settles below the scar's floor.
             MercPsyche psyche = TraumaSystem.GetForCreature(player);
             if (psyche != null)
             {
@@ -184,7 +173,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>Rising qmorphosis unsettles the merc.</summary>
     [HarmonyPatch(typeof(Player), nameof(Player.OnQmorphStageChanged))]
     internal static class QmorphStage_Patch
     {
@@ -197,8 +185,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>Stress stage transitions: high-fortitude mercs may answer Fear with
-    /// Grim Determination; dropping back below Fear removes it.</summary>
     [HarmonyPatch(typeof(StatusEffect), "HandleStageChange")]
     internal static class StageChange_Patch
     {
@@ -228,7 +214,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>Shock: a stun plus a stress spike, at most once per turn.</summary>
     internal static class Shock
     {
         public static void Trigger(Creature creature)
@@ -236,14 +221,12 @@ namespace CombatPsychology
             if (!RaidState.ShockThisTurn)
             {
                 RaidState.ShockThisTurn = true;
-                // log: true routes through the vanilla combat-log stun entry.
                 creature.CreatureData.EffectsController.Add(new StunEffect(PsyConfig.BreakdownStunTurns, log: true), merge: false);
                 StressSystem.Change(creature, PsyConfig.StressBigHitShock);
             }
         }
     }
 
-    /// <summary>The Terror-stage breakdown table, rolled once per player turn.</summary>
     internal static class Breakdown
     {
         public static void Roll(Player player)
@@ -282,14 +265,11 @@ namespace CombatPsychology
                     return;
                 }
             }
-            // Non-lethal breakdown: the merc freezes, then vents some of the pressure.
             RaidState.BreakdownsThisRaid++;
             player.CreatureData.EffectsController.Add(new StunEffect(PsyConfig.BreakdownStunTurns, log: true), merge: false);
             StressSystem.Change(player, -PsyConfig.BreakdownStressRelease);
         }
 
-        /// <summary>Lethal self-damage through the normal damage pipeline, so death, cloning
-        /// and difficulty revive rules all apply exactly as for any other death.</summary>
         private static void KillByBreakdown(Player player)
         {
             int num = player.CreatureData.Health.MaxValue * 100;
@@ -306,7 +286,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>Fortitude readout appended to the stress tooltip.</summary>
     [HarmonyPatch(typeof(TooltipFactory), nameof(TooltipFactory.BuildStatusEffectTooltip))]
     internal static class StressTooltip_Patch
     {

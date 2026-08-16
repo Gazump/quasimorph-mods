@@ -4,8 +4,6 @@ using UnityEngine;
 
 namespace CombatPsychology
 {
-    /// <summary>What the last raid did to a merc's psyche — captured during exit processing
-    /// so the UI can report it after the game wipes the raid state.</summary>
     public class RaidDebrief
     {
         public string ProfileId;
@@ -17,18 +15,15 @@ namespace CombatPsychology
         public int Delta => TraumaAfter - TraumaBefore;
     }
 
-    /// <summary>Trauma accrual/decay and scar minting. All persistent state lives in
-    /// PsycheStore.Current; this class is pure logic.</summary>
     public static class TraumaSystem
     {
-        /// <summary>Set by the raid-exit/death handlers; consumed (and cleared) by the UI.</summary>
         public static RaidDebrief LastDebrief;
 
         public const int TraumaMax = 100;
         public const int DeathTrauma = 15;
         public const int RestfulRecovery = 6;
-        public const int HighStressTrauma = 12;   // extracted at 75+ peak stress
-        public const int MidStressTrauma = 6;     // extracted at 50-74 peak stress
+        public const int HighStressTrauma = 12;
+        public const int MidStressTrauma = 6;
         public const int TraumaPerAmputation = 8;
         public const int TraumaPerBreakdown = 5;
         public const int NearDeathTrauma = 4;
@@ -73,7 +68,6 @@ namespace CombatPsychology
             return num;
         }
 
-        /// <summary>Applies a trauma delta; upward threshold crossings mint scars.</summary>
         public static void ChangeTrauma(MercPsyche psyche, int delta)
         {
             int trauma = psyche.Trauma;
@@ -110,8 +104,6 @@ namespace CombatPsychology
             }
         }
 
-        /// <summary>Raid debrief for a merc who made it back alive. Called before the game
-        /// wipes the effects controller, so the raid's effects are still readable.</summary>
         public static void ProcessRaidReturn(Mercenary mercenary)
         {
             MercPsyche psyche = PsycheStore.Current.GetOrCreate(mercenary.ProfileId);
@@ -142,9 +134,7 @@ namespace CombatPsychology
             {
                 ChangeTrauma(psyche, -RestfulRecovery);
             }
-            // Survivor's High: walked out of hell on their own feet.
             psyche.SurvivorsHighPending = exitStress >= 75;
-            // Cold Blood: high-stress raids survived without a single breakdown.
             if (peak >= 50 && RaidState.BreakdownsThisRaid == 0)
             {
                 psyche.CleanRaidStreak++;
@@ -199,8 +189,6 @@ namespace CombatPsychology
             LastDebrief = debrief;
         }
 
-        /// <summary>Applies persistent psyche to the merc at raid start (effects were wiped
-        /// after the previous raid, so everything is reapplied fresh).</summary>
         public static void ApplyAtRaidStart(Mercenary mercenary)
         {
             MercPsyche psyche = PsycheStore.Current.Find(mercenary.ProfileId);

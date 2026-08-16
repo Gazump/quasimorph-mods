@@ -1,15 +1,10 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using MGSC;
 using UnityEngine;
 
 namespace CombatPsychology
 {
-    /// <summary>
-    /// Dev-console command that extracts vanilla icon sprites from the game's atlases and
-    /// saves them as PNGs, as references for making this mod's replacement art.
-    /// Usage: psy_dumpicons [all]
-    /// </summary>
     [ConsoleCommand(new string[] { "psy_dumpicons" })]
     public class IconDumpCommand
     {
@@ -25,7 +20,6 @@ namespace CombatPsychology
             Directory.CreateDirectory(dir);
             int count = 0;
 
-            // Vanilla status-effect icons (what the effects bar shows for poison, addictions...).
             foreach (StatusEffectsRecord record in Data.StatusEffects.Records)
             {
                 if (record.Id != PsyConfig.StressId && record.Id != PsyConfig.SedativeAddictionId
@@ -35,7 +29,6 @@ namespace CombatPsychology
                 }
             }
 
-            // Tooltip mini-icons: curated set by default, everything with "all".
             var wanted = new HashSet<string>
             {
                 "common_pills", "common_health_regen", "common_fire_green", "common_no_effects",
@@ -50,7 +43,6 @@ namespace CombatPsychology
                 }
             }
 
-            // A few consumable inventory icons (pills, medpack, alcohol) for item-art scale.
             int itemsDumped = 0;
             foreach (BasePickupItemRecord item in Data.Items.Records)
             {
@@ -77,8 +69,6 @@ namespace CombatPsychology
             return $"Dumped {count} icons to {dir}";
         }
 
-        /// <summary>Atlas textures are not CPU-readable, so blit to a temporary RenderTexture,
-        /// read back, and crop to the sprite's rect.</summary>
         private static bool Dump(Sprite sprite, string path)
         {
             try

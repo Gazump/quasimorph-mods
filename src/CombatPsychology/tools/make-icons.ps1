@@ -1,6 +1,3 @@
-# Generates the placeholder icons for CombatPsychology into ../content/icons.
-# Status-bar icons: transparent background, glyph kept out of the bottom ~30% where the
-# effect panel draws its value strip. Replace with real art any time (same filenames).
 Add-Type -AssemblyName System.Drawing
 
 $outDir = Join-Path $PSScriptRoot "..\content\icons"
@@ -25,7 +22,6 @@ function Save-Icon($bmp, $g, [string]$name) {
     Write-Host "wrote $name.png"
 }
 
-# Bolt glyph confined to a vertical band [yTop, yBottom] of the canvas.
 function Draw-Bolt($g, [int]$s, $brush, [int]$yTop, [int]$yBottom) {
     $h = $yBottom - $yTop
     $pts = @(
@@ -54,11 +50,9 @@ function New-PillIcon([string]$name, [int]$s, [int]$r, [int]$gr, [int]$b, [int]$
     Save-Icon $bmp $g $name
 }
 
-# Status-bar icons: 24px, glyph in top 17px, bottom 7px transparent for the value strip.
 New-BoltIcon "psy_stress_icon" 24 240 200 60 1 17
 New-PillIcon "psy_sedative_addiction_icon" 24 150 90 200 1 17
 
-# Tooltip mini-icons: full-canvas glyphs, transparent background.
 New-BoltIcon "statuseffect_stress_buff" 12 90 200 110 0 11
 New-BoltIcon "statuseffect_stress_debuff" 12 220 80 80 0 11
 New-BoltIcon "statuseffect_stress_chance" 12 240 200 60 0 11
@@ -66,20 +60,18 @@ New-PillIcon "statuseffect_sedativeAddiction_buff" 12 90 200 110 0 11
 New-PillIcon "statuseffect_sedativeAddiction_debuff" 12 220 80 80 0 11
 New-PillIcon "statuseffect_sedativeAddiction_chance" 12 240 200 60 0 11
 
-# Item icon: 32px pill bottle with transparent background and margins.
 $bmp, $g = Start-Icon 32
 $bottle = Brush 90 160 210
 $cap = Brush 220 220 225
 $label = Brush 235 235 235
-$g.FillRectangle($cap, 11, 4, 10, 4)          # cap
-$g.FillRectangle($bottle, 9, 8, 14, 19)       # body
-$g.FillRectangle($label, 11, 13, 10, 8)       # label
+$g.FillRectangle($cap, 11, 4, 10, 4)
+$g.FillRectangle($bottle, 9, 8, 14, 19)
+$g.FillRectangle($label, 11, 13, 10, 8)
 $pill = Brush 240 200 60
-$g.FillEllipse($pill, 12, 15, 4, 4)           # pill dot on label
+$g.FillEllipse($pill, 12, 15, 4, 4)
 $g.FillEllipse((Brush 220 80 80), 17, 15, 4, 4)
 Save-Icon $bmp $g "psy_sedative_item"
 
-# Buff icons: 24px, glyph in top 17px, transparent background.
 $bmp, $g = Start-Icon 24
 $drop = Brush 200 40 40
 $g.FillPolygon($drop, @(

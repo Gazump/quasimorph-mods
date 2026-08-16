@@ -6,11 +6,6 @@ using UnityEngine;
 
 namespace CombatPsychology
 {
-    /// <summary>
-    /// The effects bar (EffectsView.CreatePanel) and the hover tooltip
-    /// (CommonEffectPanel.InitTooltip) both dispatch on hardcoded concrete types, so this
-    /// mod's buffs need a prefix on each to get an icon and a tooltip.
-    /// </summary>
     [HarmonyPatch(typeof(EffectsView), "CreatePanel")]
     internal static class EffectsView_CreatePanel_Patch
     {
@@ -55,8 +50,6 @@ namespace CombatPsychology
                 _createdTooltipField.SetValue(__instance, true);
                 return false;
             }
-            // Same stat-line renderer the stress tooltip uses, fed from this buff's live
-            // sub-effects; white value color since these are bonuses, not penalties.
             foreach (WoundEffect item in psyBuff.ResolveSubEffects())
             {
                 instance.AddWoundEffectProperty(item.EffectId, item.ViewValue).SetValueColor(Colors.White);

@@ -1,0 +1,49 @@
+[b]⚠ EXPERIMENTAL (v0.5)[/b] — back up your save files before subscribing, just in case. No problems are expected, but this mod is young and touches a lot of systems. [b]Starting a new game is recommended.[/b]
+
+Your mercenaries now have minds that can break. Combat stress, breakdowns, lasting trauma, psychological scars — and the occasional battle high.
+
+[h2]Stress (in-raid)[/h2]
+A 0–100 meter that rises from getting hit, wounds, amputations, pain overload, massive single hits and rising qmorphosis, and decays in quiet moments. Four escalating stages:
+[list]
+[*][b]Unease[/b] (1–24) – a warning light, no penalties
+[*][b]Anxiety[/b] (25–49) – reduced accuracy, increased pain
+[*][b]Fear[/b] (50–74) – worse accuracy, narrowed vision, reduced dodge, no stealth
+[*][b]Terror[/b] (75–100) – heavy accuracy loss, hallucinations, and breakdown rolls every turn
+[/list]
+A breakdown freezes the merc for a turn and vents some pressure — but at 100 stress it can turn lethal. A merc lost this way dies by the normal rules: cloning, permadeath, gear drop, exactly per your difficulty settings.
+
+[h2]Fortitude[/h2]
+Every merc has a mental resilience stat that scales stress gain, resists lethal breakdowns and drives the battle highs. Shown in operator tooltips and the psych evaluation. Stress gain also scales with your difficulty preset.
+
+[h2]Battle highs[/h2]
+Positive combat psychology with real bonuses (and comedowns):
+[list]
+[*][b]Bloodlust[/b] – 3 kills in two turns: melee accuracy and pain relief, then a stress bill when it fades
+[*][b]Battle Focus[/b] – deal damage without taking any: stacking ranged accuracy, broken when hit
+[*][b]Adrenaline Rush[/b] – first brush with death each raid: bonus AP and rapid pain decay
+[*][b]Second Wind[/b] – shrug off the first pain stun of the raid while still composed
+[*][b]Grim Determination[/b] – high-fortitude mercs may answer Fear with improved aim
+[/list]
+
+[h2]Trauma & scars (persistent)[/h2]
+What a merc endures follows them home. Trauma accrues from high-stress raids, amputations, breakdowns, near-death moments and death itself — clones inherit it. Crossing thresholds mints permanent scars: [b]Shell Shock, Night Terrors, Depression, Substance Dependence[/b], the dreaded [b]Death Wish[/b] — or, for the unbreakable, [b]Cold Blood[/b] and [b]Survivor's High[/b]. Scars reapply at the start of every raid.
+
+Returning from a raid reports trauma changes on the ship ticker and the mission statistics screen. Every operator row gets a psych-evaluation button showing the full picture.
+
+[h2]Treatments[/h2]
+[list]
+[*][b]Tranq-Eze sedative[/b] – vents 35 stress, dulls pain, habit-forming (a full addiction, like morphine). Not yet in loot tables — spawn via console ([i]item qm_psy_sedative[/i]) for now
+[*][b]Alcohol[/b] – now relieves 12 stress on use
+[*][b]Smoking[/b] – anything with a nicotine addiction chance relieves 8 stress
+[*]Scar treatment (a ship rehab facility) is planned for a future version
+[/list]
+
+[h2]Saves & compatibility[/h2]
+Psychological data lives in a separate [i]slot_N_psyche.dat[/i] file next to your saves — vanilla save files are untouched, and loading an older save rolls the psychology back with it. Ship-side saves remain fully compatible if the mod is removed; avoid uninstalling while a mid-raid save is active (in-raid effects reference mod code). Built on the game's own status-effect system where possible, with a small set of targeted Harmony patches.
+
+[h2]Console commands[/h2]
+[i]psy_psyche[/i] (roster overview), [i]psy_stress[/i], [i]psy_trauma[/i], [i]psy_scar[/i] — handy for trying everything out.
+
+Support via [url=https://ko-fi.com/gazump]ko-fi.com/gazump[/url]; source code on [url=https://github.com/Gazump/quasimorph-mods]GitHub[/url].
+
+[b]Version:[/b] 0.5.0 (Experimental, 16 Aug)

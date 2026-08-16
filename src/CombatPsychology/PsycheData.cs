@@ -1,10 +1,8 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MGSC;
 
 namespace CombatPsychology
 {
-    /// <summary>Persistent psychological state for one mercenary profile. Keyed by ProfileId,
-    /// so it survives cloning — the clone remembers.</summary>
     public class MercPsyche : IWrapTypeOnSave
     {
         [Save]
@@ -16,11 +14,9 @@ namespace CombatPsychology
         [Save]
         public List<string> Scars { get; set; } = new List<string>();
 
-        /// <summary>Consecutive high-stress raids survived without a breakdown (feeds Cold Blood).</summary>
         [Save]
         public int CleanRaidStreak { get; set; }
 
-        /// <summary>Extracted at 75+ stress last raid: next raid starts with bonus fortitude.</summary>
         [Save]
         public bool SurvivorsHighPending { get; set; }
 
@@ -30,11 +26,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>
-    /// The whole-campaign psyche table. Not part of the game's hardcoded save component
-    /// list, so PersistencePatches serialize it to a slot_N_psyche.dat sidecar with the
-    /// game's own SaveToJSON/LoadJSON machinery.
-    /// </summary>
     public class PsycheStore
     {
         public static PsycheStore Current = new PsycheStore();

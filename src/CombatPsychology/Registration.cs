@@ -7,14 +7,10 @@ using UnityEngine;
 
 namespace CombatPsychology
 {
-    /// <summary>Registers all data-driven content: status effect records, the sedative item,
-    /// vice-item stress relief, tooltip icons and localization rows.</summary>
     public static class Registration
     {
         public static void RegisterAll()
         {
-            // Sample vanilla sprites first: every icon we create is PPU-normalized against
-            // one of these so SetNativeSize/X100 renders it at vanilla size.
             IconFactory.StatusIconReference = FindStatusIconReference();
             _tooltipIconReference = FindTooltipIconReference();
             RegisterStressRecord();
@@ -57,8 +53,6 @@ namespace CombatPsychology
             PsyStatusEffectsRecord record = new PsyStatusEffectsRecord(PsyConfig.StressId)
             {
                 ProgressionType = StatusEffectProgressionType.Decrement,
-                // Damage renewal: re-applying through the vanilla path (console command,
-                // future stress-inflicting items/weapons) adds to the level instead of no-op.
                 RenewalType = StatusEffectRenewalType.Damage,
                 IncrementModifier = 1f,
                 DecrementModifier = 1f,
@@ -74,8 +68,6 @@ namespace CombatPsychology
                     { "accuracy_reduce", -0.1f },
                     { "income_pain", 0.15f }
                 },
-                // NOTE: fov_angle and dodge_reduce are fractions like accuracy_reduce
-                // (the game multiplies by 100 for display and applies as (1 + value)).
                 Stage3WoundEffects = new Dictionary<string, float>
                 {
                     { "accuracy_reduce", -0.2f },
@@ -96,8 +88,6 @@ namespace CombatPsychology
 
         private static void RegisterSedativeAddictionRecord()
         {
-            // The id's "Addiction" suffix makes the game treat it exactly like the vanilla
-            // morphine/alcohol/nicotine addictions (achievements, perk immunity, stacking).
             PsyStatusEffectsRecord record = new PsyStatusEffectsRecord(PsyConfig.SedativeAddictionId)
             {
                 ProgressionType = StatusEffectProgressionType.Increment,
@@ -169,8 +159,6 @@ namespace CombatPsychology
             Data.Items.AddRecord(record.Id, record);
         }
 
-        /// <summary>Alcohol calms nerves; anything carrying a nicotine addiction chance is a smoke.
-        /// Both get an in-raid stress relief line (and tooltip) via EffectProgression.</summary>
         private static void PatchViceItems()
         {
             int num = 0;
@@ -214,7 +202,6 @@ namespace CombatPsychology
 
         private static void RegisterTooltipIcons()
         {
-            // Tags the game's generic tooltip builders will look up for our status effects.
             RegisterTooltipIcon("statuseffect_stress_buff");
             RegisterTooltipIcon("statuseffect_stress_debuff");
             RegisterTooltipIcon("statuseffect_stress_chance");
@@ -238,8 +225,6 @@ namespace CombatPsychology
             return statusEffectDescriptor;
         }
 
-        /// <summary>Clones the descriptor of an existing pill-class item (keeping its render id,
-        /// map icon and use-sound) and swaps in our inventory icon.</summary>
         private static ItemContentDescriptor CreateSedativeDescriptor()
         {
             ItemContentDescriptor template = null;
@@ -276,10 +261,6 @@ namespace CombatPsychology
             return descriptor;
         }
 
-        // --- Localization -------------------------------------------------------------
-
-        /// <summary>Rows appended to the game's tab-separated localization table.
-        /// Column layout: key + 11 languages; English is replicated everywhere for v1.</summary>
         public static string BuildLocalizationRows()
         {
             StringBuilder stringBuilder = new StringBuilder();

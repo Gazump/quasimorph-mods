@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using HarmonyLib;
 using MGSC;
 using SimpleJSON;
@@ -6,13 +6,6 @@ using UnityEngine;
 
 namespace CombatPsychology
 {
-    /// <summary>
-    /// The game's save format is a hardcoded component list (ComponentsLayout), and its
-    /// loader resolves component types only from the game assembly — foreign components in
-    /// session.dat would crash it. So the psyche store rides in a sidecar file,
-    /// "{prefix}slot_{N}_psyche.dat", written and removed in lockstep with the vanilla
-    /// save files so slots, autosaves and save-scumming behave identically.
-    /// </summary>
     [HarmonyPatch(typeof(SaveManager), nameof(SaveManager.SaveGame))]
     internal static class SaveGame_Patch
     {
@@ -40,8 +33,6 @@ namespace CombatPsychology
             {
                 return;
             }
-            // Always start clean: a pre-mod save without a sidecar must not inherit the
-            // previous session's psyche table.
             PsycheStore.ResetAll();
             string arg = (isAutoSave ? "autosave_" : "");
             string filename = $"{arg}slot_{slot}_psyche.dat";
@@ -68,8 +59,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>New game (or rebuilt session) starts with an empty psyche table; a
-    /// subsequent LoadGame postfix repopulates it from the sidecar.</summary>
     [HarmonyPatch(typeof(ComponentsLayout), nameof(ComponentsLayout.CreateGlobalComponents))]
     internal static class NewGame_Patch
     {

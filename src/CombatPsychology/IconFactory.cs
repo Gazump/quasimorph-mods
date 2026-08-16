@@ -1,24 +1,15 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
 namespace CombatPsychology
 {
-    /// <summary>Loads the mod's PNG icons into sprites, with a generated fallback so a
-    /// missing file can never null-ref the game's UI.
-    ///
-    /// The game sizes icons from the sprite's pixelsPerUnit (SetNativeSize /
-    /// SetNativeSizeX100), so every sprite is normalized against a sampled vanilla
-    /// reference sprite: ppu = referencePpu * (ourWidth / referenceWidth) makes our icon
-    /// render at exactly the reference's on-screen size.</summary>
     public static class IconFactory
     {
         private static readonly Dictionary<string, Sprite> _cache = new Dictionary<string, Sprite>();
 
         public static string ContentPath;
 
-        /// <summary>A vanilla status-effect icon, sampled during registration; used to scale
-        /// the effects-bar icons (status effects and this mod's buffs).</summary>
         public static Sprite StatusIconReference;
 
         public static Sprite Get(string spriteName)
@@ -66,7 +57,6 @@ namespace CombatPsychology
             return texture2D;
         }
 
-        /// <summary>A flat magenta square: ugly on purpose, visible in-game, never null.</summary>
         private static Texture2D CreateFallbackTexture()
         {
             Texture2D texture2D = new Texture2D(16, 16, TextureFormat.RGBA32, mipChain: false);

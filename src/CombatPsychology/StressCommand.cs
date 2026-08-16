@@ -1,15 +1,12 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MGSC;
 using UnityEngine;
 
 namespace CombatPsychology
 {
-    /// <summary>Dev-console command that force-SETS the player's stress level (the vanilla
-    /// `statuseffect stress N` adds instead). Usage: psy_stress <0-100></summary>
     [ConsoleCommand(new string[] { "psy_stress" })]
     public class StressCommand
     {
-        // Assigned by the game's DI via [Inject]; the null initializer silences CS0649.
         [Inject(false)]
         private readonly Creatures _creatures = null;
 

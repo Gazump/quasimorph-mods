@@ -1,12 +1,10 @@
-using MGSC;
+﻿using MGSC;
 using UnityEngine;
 
 namespace CombatPsychology
 {
-    /// <summary>Core stress bookkeeping: read, gain (fortitude- and difficulty-scaled), relieve.</summary>
     public static class StressSystem
     {
-        /// <summary>Set once per raid from the DungeonStarted hook; null outside raids.</summary>
         public static Difficulty Difficulty;
 
         public static StatusEffect Find(Creature creature)
@@ -30,7 +28,6 @@ namespace CombatPsychology
             return statusEffect?.Stage ?? 0;
         }
 
-        /// <summary>Ship-side fortitude (no raid bonuses): base + perks + scars.</summary>
         public static int GetFortitudeForMerc(Mercenary mercenary)
         {
             if (mercenary == null)
@@ -66,7 +63,6 @@ namespace CombatPsychology
             return Mathf.Clamp(num, PsyConfig.MinGainMult, PsyConfig.MaxGainMult);
         }
 
-        /// <summary>Add (scaled) stress to the player. Negative amounts relieve and are not scaled.</summary>
         public static void Change(Creature creature, int amount)
         {
             if (creature == null || !(creature is Player) || amount == 0)

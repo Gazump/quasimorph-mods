@@ -7,8 +7,6 @@ using UnityEngine.UI;
 
 namespace CombatPsychology
 {
-    /// <summary>Ship-side surfacing of trauma/scars: post-raid summary rows, a psych-eval
-    /// button on the mercenary rows, and Fortitude in the merc hover tooltip.</summary>
     internal static class PsycheReport
     {
         public static string MercName(string profileId)
@@ -21,9 +19,6 @@ namespace CombatPsychology
             return Localization.Get("ui.psy.scar." + scarId + ".name");
         }
 
-        /// <summary>The full psych evaluation as a standard green tooltip (the same chassis
-        /// the inventory and status tooltips use): green heading block, stat rows with
-        /// icons, trauma value and scar names in red for emphasis.</summary>
         public static void ShowEvaluationTooltip(Mercenary mercenary)
         {
             MercPsyche mercPsyche = PsycheStore.Current.Find(mercenary.ProfileId);
@@ -67,7 +62,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>Queues trauma notifications on the ship notification ticker after each raid.</summary>
     internal static class DebriefNotifier
     {
         public static void Notify()
@@ -99,7 +93,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>Trauma summary rows on the post-mission statistics window (won missions).</summary>
     [HarmonyPatch(typeof(AfterRaidStatisticWindow), nameof(AfterRaidStatisticWindow.Configure))]
     internal static class AfterRaidStatisticWindow_Patch
     {
@@ -141,8 +134,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>Fortitude line appended to the merc hover tooltip (Manage Operators,
-    /// pre-raid selection — anywhere BuildMercenaryTooltip is used).</summary>
     [HarmonyPatch(typeof(TooltipFactory), nameof(TooltipFactory.BuildMercenaryTooltip))]
     internal static class MercTooltip_Patch
     {
@@ -164,7 +155,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>The brain button cloned onto each mercenary row, opening the psych evaluation.</summary>
     public class PsycheIconButton : MonoBehaviour, IPointerClickHandler, IEventSystemHandler, IPointerEnterHandler, IPointerExitHandler
     {
         public Mercenary Mercenary;
@@ -172,7 +162,6 @@ namespace CombatPsychology
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            // The evaluation lives on hover; a click just re-shows it (useful after scrolling).
             if (Mercenary != null)
             {
                 PsycheReport.ShowEvaluationTooltip(Mercenary);
@@ -225,9 +214,8 @@ namespace CombatPsychology
                     return;
                 }
                 Transform parent = mercenaryClassIcon.transform.parent;
+                bool show = mercenary.State == MercenaryState.None;
                 Transform existing = parent.Find(CloneName);
-                // Rows are pooled: a recycled panel keeps the clone, so just retarget it.
-                // Shown in both modes: Manage Operators AND the pre-raid selection screen.
                 if (existing != null)
                 {
                     PsycheIconButton component = existing.GetComponent<PsycheIconButton>();
@@ -235,7 +223,11 @@ namespace CombatPsychology
                     {
                         component.Mercenary = mercenary;
                     }
-                    existing.gameObject.SetActive(value: true);
+                    existing.gameObject.SetActive(show);
+                    return;
+                }
+                if (!show)
+                {
                     return;
                 }
                 GameObject clone = Object.Instantiate(mercenaryClassIcon.gameObject, parent, worldPositionStays: false);
@@ -252,7 +244,6 @@ namespace CombatPsychology
                 {
                     border.gameObject.SetActive(value: false);
                 }
-                // If the parent has no layout group, continue the row's own spacing pattern.
                 if (parent.GetComponent<LayoutGroup>() == null)
                 {
                     RectTransform classRect = (RectTransform)mercenaryClassIcon.transform;

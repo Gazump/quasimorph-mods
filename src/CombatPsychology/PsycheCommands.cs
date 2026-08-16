@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using MGSC;
 using UnityEngine;
@@ -7,8 +7,6 @@ namespace CombatPsychology
 {
     internal static class CommandHelpers
     {
-        /// <summary>Resolves the target merc: explicit profile id if given, else the merc in
-        /// raid, else the only merc on the roster.</summary>
         public static Mercenary ResolveMerc(Mercenaries mercenaries, string profileId)
         {
             if (!string.IsNullOrEmpty(profileId))
@@ -44,7 +42,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>Readout of every merc's persistent psyche.</summary>
     [ConsoleCommand(new string[] { "psy_psyche" })]
     public class PsychePsycheCommand
     {
@@ -88,7 +85,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>Sets trauma to an exact value; threshold crossings mint scars as in play.</summary>
     [ConsoleCommand(new string[] { "psy_trauma" })]
     public class PsycheTraumaCommand
     {
@@ -133,7 +129,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>Grants/removes scars directly. Takes effect next raid (scars apply at raid start).</summary>
     [ConsoleCommand(new string[] { "psy_scar" })]
     public class PsycheScarCommand
     {

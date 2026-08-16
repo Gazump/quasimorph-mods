@@ -1,13 +1,8 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MGSC;
 
 namespace CombatPsychology
 {
-    /// <summary>
-    /// Base for this mod's buffs. Stat changes are expressed as vanilla WoundEffect
-    /// sub-effects (same pattern StatusEffect uses), so CreatureData's stat sums pick
-    /// them up without any patching. Sub-effect ids are saved and cleaned up on removal.
-    /// </summary>
     public abstract class PsyBuff : Buff, IEffectWithView
     {
         [Save]
@@ -45,7 +40,6 @@ namespace CombatPsychology
             }
         }
 
-        /// <summary>The live wound-effects backing this buff, for tooltip stat lines.</summary>
         public List<WoundEffect> ResolveSubEffects()
         {
             List<WoundEffect> list = new List<WoundEffect>();
@@ -93,7 +87,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>Kill streak high: melee accuracy and pain relief now, a stress bill when it fades.</summary>
     public class BloodlustBuff : PsyBuff
     {
         public BloodlustBuff()
@@ -115,8 +108,6 @@ namespace CombatPsychology
         public override void OnRemoved()
         {
             base.OnRemoved();
-            // The comedown only bites while still in a raid and alive; EffectsController.Clear()
-            // between raids never calls OnRemoved, so this cannot leak into the ship phase.
             if (_creature is Player && _creature.CreatureData.Health.Alive && StressSystem.Difficulty != null)
             {
                 StressSystem.Change(_creature, PsyConfig.StressBloodlustComedown);
@@ -124,7 +115,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>Stacking ranged accuracy for consecutive turns of dealing damage without taking any.</summary>
     public class BattleFocusBuff : PsyBuff
     {
         [Save]
@@ -164,7 +154,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>First brush with death each raid: bonus AP and rapid pain decay for a few turns.</summary>
     public class AdrenalineRushBuff : PsyBuff
     {
         public AdrenalineRushBuff()
@@ -183,7 +172,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>Marker for the once-per-raid ignored pain stun; carries a short pain-regen boost.</summary>
     public class SecondWindBuff : PsyBuff
     {
         public SecondWindBuff()
@@ -202,8 +190,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>Persistent scars, surfaced in the effects bar for the whole raid. Wound-effect
-    /// penalties are built lazily on the first tick, when the creature link is guaranteed.</summary>
     public class ScarsEffect : PsyBuff
     {
         [Save]
@@ -248,8 +234,6 @@ namespace CombatPsychology
         }
     }
 
-    /// <summary>Extracted at 75+ stress last raid: +2 Fortitude for this one. Display marker;
-    /// the bonus itself is read from RaidState by StressSystem.</summary>
     public class SurvivorsHighBuff : PsyBuff
     {
         public SurvivorsHighBuff()
@@ -262,7 +246,6 @@ namespace CombatPsychology
         public override EffectViewShowValueFormat ShowValueFormat => EffectViewShowValueFormat.Raw;
     }
 
-    /// <summary>High fortitude under Fear: the penalties are offset by sheer spite.</summary>
     public class GrimDeterminationBuff : PsyBuff
     {
         public GrimDeterminationBuff()
