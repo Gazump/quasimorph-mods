@@ -200,7 +200,6 @@ namespace CombatPsychology
     {
         private const string CloneName = "CP_PsycheIcon";
         private static readonly FieldInfo _classIconField = AccessTools.Field(typeof(MercenaryPanel), "_classIcon");
-        private static readonly FieldInfo _implantsIconField = AccessTools.Field(typeof(MercenaryPanel), "_implantsIcon");
         private static readonly FieldInfo _iconField = AccessTools.Field(typeof(MercenaryClassIcon), "_icon");
         private static readonly FieldInfo _borderField = AccessTools.Field(typeof(MercenaryClassIcon), "_selectionBorder");
 
@@ -214,7 +213,6 @@ namespace CombatPsychology
                     return;
                 }
                 Transform parent = mercenaryClassIcon.transform.parent;
-                bool show = mercenary.State == MercenaryState.None;
                 Transform existing = parent.Find(CloneName);
                 if (existing != null)
                 {
@@ -223,11 +221,7 @@ namespace CombatPsychology
                     {
                         component.Mercenary = mercenary;
                     }
-                    existing.gameObject.SetActive(show);
-                    return;
-                }
-                if (!show)
-                {
+                    existing.gameObject.SetActive(value: true);
                     return;
                 }
                 GameObject clone = Object.Instantiate(mercenaryClassIcon.gameObject, parent, worldPositionStays: false);
@@ -244,17 +238,23 @@ namespace CombatPsychology
                 {
                     border.gameObject.SetActive(value: false);
                 }
-                if (parent.GetComponent<LayoutGroup>() == null)
+                RectTransform classRect = (RectTransform)mercenaryClassIcon.transform;
+                RectTransform cloneRect = (RectTransform)clone.transform;
+                LayoutElement layoutElement = clone.AddComponent<LayoutElement>();
+                layoutElement.ignoreLayout = true;
+                Vector2 size = classRect.rect.size;
+                if (size.x < 1f || size.y < 1f)
                 {
-                    RectTransform classRect = (RectTransform)mercenaryClassIcon.transform;
-                    RectTransform implantsRect = (RectTransform)((MercenaryImplantsIcon)_implantsIconField.GetValue(__instance)).transform;
-                    Vector2 step = implantsRect.anchoredPosition - classRect.anchoredPosition;
-                    ((RectTransform)clone.transform).anchoredPosition = implantsRect.anchoredPosition + step;
+                    size = classRect.sizeDelta;
                 }
-                else
+                cloneRect.anchorMin = new Vector2(0f, 0.5f);
+                cloneRect.anchorMax = new Vector2(0f, 0.5f);
+                cloneRect.pivot = new Vector2(1f, 0.5f);
+                if (size.x >= 1f && size.y >= 1f)
                 {
-                    clone.transform.SetAsLastSibling();
+                    cloneRect.sizeDelta = size;
                 }
+                cloneRect.anchoredPosition = new Vector2(-8f, 0f);
                 PsycheIconButton psycheIconButton = clone.AddComponent<PsycheIconButton>();
                 psycheIconButton.Mercenary = mercenary;
                 psycheIconButton.SelectionBorder = border;
