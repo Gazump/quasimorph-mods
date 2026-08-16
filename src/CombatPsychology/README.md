@@ -74,8 +74,9 @@ stress tooltip.
 
 ### Treatments
 
-- **Tranq-Eze sedative** (new item, `item qm_psy_sedative` in the console): −35 stress,
-  −10 pain, 12% sedative addiction risk per use.
+- **Tranq-Eze sedative** (new item): −35 stress, −10 pain, 12% sedative addiction risk
+  per use. Drops in any container that can drop vanilla pills, at half their weight
+  (`item qm_psy_sedative` in the console still works for testing).
 - **Alcohol** items: −12 stress on use (existing addiction risk unchanged).
 - **Anything with a nicotine addiction chance** (cigarettes etc.): −8 stress on use.
 - **Sedative addiction** is a real addiction (id ends in `Addiction`), creeping upward

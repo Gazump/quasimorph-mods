@@ -32,7 +32,7 @@ Returning from a raid reports trauma changes on the ship ticker and the mission 
 
 [h2]Treatments[/h2]
 [list]
-[*][b]Tranq-Eze sedative[/b] – vents 35 stress, dulls pain, habit-forming (a full addiction, like morphine). Not yet in loot tables — spawn via console ([i]item qm_psy_sedative[/i]) for now
+[*][b]Tranq-Eze sedative[/b] – vents 35 stress, dulls pain, habit-forming (a full addiction, like morphine). Found wherever other pills drop, at a reduced rate
 [*][b]Alcohol[/b] – now relieves 12 stress on use
 [*][b]Smoking[/b] – anything with a nicotine addiction chance relieves 8 stress
 [*]Scar treatment (a ship rehab facility) is planned for a future version

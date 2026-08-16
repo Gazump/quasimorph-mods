@@ -17,6 +17,7 @@ namespace CombatPsychology
             RegisterSedativeAddictionRecord();
             RegisterSedativeItem();
             PatchViceItems();
+            RegisterSedativeDrops();
             RegisterTooltipIcons();
         }
 
@@ -198,6 +199,58 @@ namespace CombatPsychology
                 }
             }
             Debug.Log($"[CombatPsychology] Added stress relief to {num} vice items.");
+        }
+
+        private static void RegisterSedativeDrops()
+        {
+            HashSet<string> pillIds = new HashSet<string>();
+            foreach (BasePickupItemRecord item in Data.Items.Records)
+            {
+                if (!(item is CompositeItemRecord compositeItemRecord))
+                {
+                    continue;
+                }
+                foreach (BasePickupItemRecord record in compositeItemRecord.Records)
+                {
+                    if (record is ConsumableRecord { ItemClass: ItemClass.Pills } && record.Id != PsyConfig.SedativeItemId)
+                    {
+                        pillIds.Add(record.Id);
+                    }
+                }
+            }
+            int num = 0;
+            foreach (string containerId in Data.ContainerItemDrop.ContainerIds)
+            {
+                foreach (string dropBiome in Data.ContainerItemDrop.GetDropBiomes(containerId))
+                {
+                    List<System.Tuple<float, string>> drop = Data.ContainerItemDrop.GetDrop(containerId, dropBiome);
+                    if (drop == null)
+                    {
+                        continue;
+                    }
+                    float referenceWeight = 0f;
+                    bool alreadyPresent = false;
+                    foreach (System.Tuple<float, string> entry in drop)
+                    {
+                        if (entry.Item2 == PsyConfig.SedativeItemId)
+                        {
+                            alreadyPresent = true;
+                            break;
+                        }
+                        if (pillIds.Contains(entry.Item2))
+                        {
+                            referenceWeight = Mathf.Max(referenceWeight, entry.Item1);
+                        }
+                    }
+                    if (!alreadyPresent && referenceWeight > 0f)
+                    {
+                        float weight = Mathf.Max(1f, Mathf.Round(referenceWeight * PsyConfig.SedativeDropWeightFactor));
+                        drop.Add(new System.Tuple<float, string>(weight, PsyConfig.SedativeItemId));
+                        num++;
+                    }
+                }
+            }
+            Debug.Log($"[CombatPsychology] Added sedative to {num} container drop lists.");
         }
 
         private static void RegisterTooltipIcons()

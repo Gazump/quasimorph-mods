@@ -49,6 +49,7 @@ namespace CombatPsychology
 
         public const int SedativeStressRelief = -35;
         public const float SedativeAddictionChance = 0.12f;
+        public const float SedativeDropWeightFactor = 0.5f;
         public const int AlcoholStressRelief = -12;
         public const int NicotineStressRelief = -8;
     }
