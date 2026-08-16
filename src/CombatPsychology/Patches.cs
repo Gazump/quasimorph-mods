@@ -55,11 +55,24 @@ namespace CombatPsychology
             }
             EffectsController effectsController = __instance.CreatureData.EffectsController;
             effectsController.RemoveAllEffects<BattleFocusBuff>();
-            StressSystem.Change(__instance, PsyConfig.StressPerHit);
+            int hitStress = PsyConfig.StressPerHit;
+            MercPsyche psyche = TraumaSystem.GetForCreature(__instance);
+            if (hitInfo.info.damage == "explosion" && psyche != null)
+            {
+                foreach (string scar in psyche.Scars)
+                {
+                    hitStress = Mathf.RoundToInt((float)hitStress * (ScarCatalog.Get(scar)?.ExplosionStressMult ?? 1f));
+                }
+            }
+            StressSystem.Change(__instance, hitStress);
             HealthInfo health = __instance.CreatureData.Health;
             if ((float)hitInfo.finalDmg >= (float)health.MaxValue * PsyConfig.BigHitHealthFraction)
             {
                 Shock.Trigger(__instance);
+            }
+            if (health.Alive && (float)health.Value <= (float)health.MaxValue * PsyConfig.AdrenalineHealthFraction)
+            {
+                RaidState.NearDeath = true;
             }
             if (!RaidState.AdrenalineUsed && health.Alive && (float)health.Value <= (float)health.MaxValue * PsyConfig.AdrenalineHealthFraction)
             {
@@ -151,6 +164,22 @@ namespace CombatPsychology
                 return;
             }
             RaidState.OnPlayerTurnStarted();
+            int level = StressSystem.GetLevel(player);
+            RaidState.PeakStress = Mathf.Max(RaidState.PeakStress, level);
+            // Night Terrors: stress never settles below the scar's floor.
+            MercPsyche psyche = TraumaSystem.GetForCreature(player);
+            if (psyche != null)
+            {
+                int floor = 0;
+                foreach (string scar in psyche.Scars)
+                {
+                    floor = Mathf.Max(floor, ScarCatalog.Get(scar)?.StressFloor ?? 0);
+                }
+                if (floor > 0 && level < floor)
+                {
+                    StressSystem.Change(player, floor - level);
+                }
+            }
             Breakdown.Roll(player);
         }
     }
@@ -225,13 +254,27 @@ namespace CombatPsychology
                 return;
             }
             float num = Mathf.Lerp(PsyConfig.BreakdownBaseChance, PsyConfig.BreakdownMaxChance, (float)(level - 75) / 25f);
+            float suicideMult = 1f;
+            MercPsyche psyche = TraumaSystem.GetForCreature(player);
+            if (psyche != null)
+            {
+                foreach (string scar in psyche.Scars)
+                {
+                    ScarDef scarDef = ScarCatalog.Get(scar);
+                    if (scarDef != null)
+                    {
+                        num += scarDef.BreakdownChanceBonus;
+                        suicideMult *= scarDef.SuicideChanceMult;
+                    }
+                }
+            }
             if (Random.Range(0f, 1f) > num)
             {
                 return;
             }
             if (level >= 100)
             {
-                float num2 = PsyConfig.SuicideChanceAt100 - (float)StressSystem.GetFortitude(player) * PsyConfig.FortitudeSuicideStep;
+                float num2 = (PsyConfig.SuicideChanceAt100 - (float)StressSystem.GetFortitude(player) * PsyConfig.FortitudeSuicideStep) * suicideMult;
                 if (Random.Range(0f, 1f) <= num2)
                 {
                     Debug.Log("[CombatPsychology] Breakdown: the merc turns their weapon on themself.");
@@ -240,6 +283,7 @@ namespace CombatPsychology
                 }
             }
             // Non-lethal breakdown: the merc freezes, then vents some of the pressure.
+            RaidState.BreakdownsThisRaid++;
             player.CreatureData.EffectsController.Add(new StunEffect(PsyConfig.BreakdownStunTurns, log: true), merge: false);
             StressSystem.Change(player, -PsyConfig.BreakdownStressRelease);
         }

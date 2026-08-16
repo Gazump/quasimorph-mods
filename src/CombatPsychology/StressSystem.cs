@@ -30,13 +30,29 @@ namespace CombatPsychology
             return statusEffect?.Stage ?? 0;
         }
 
-        public static int GetFortitude(Creature creature)
+        /// <summary>Ship-side fortitude (no raid bonuses): base + perks + scars.</summary>
+        public static int GetFortitudeForMerc(Mercenary mercenary)
         {
-            if (creature == null)
+            if (mercenary == null)
             {
                 return PsyConfig.FortitudeBase;
             }
-            return PsyConfig.FortitudeBase + PerkSystem.GetPerkParameterSumInt(creature.CreatureData, "IFortitude");
+            int num = PsyConfig.FortitudeBase + PerkSystem.GetPerkParameterSumInt(mercenary.CreatureData, "IFortitude");
+            return num + TraumaSystem.GetScarFortitudeMod(PsycheStore.Current.Find(mercenary.ProfileId));
+        }
+
+        public static int GetFortitude(Creature creature)
+        {
+            if (!(creature is Player player))
+            {
+                return PsyConfig.FortitudeBase;
+            }
+            int num = GetFortitudeForMerc(player.Mercenary);
+            if (RaidState.SurvivorsHighActive)
+            {
+                num += 2;
+            }
+            return num;
         }
 
         public static float GetGainMultiplier(Creature creature)
@@ -46,6 +62,7 @@ namespace CombatPsychology
             {
                 num *= Difficulty.Preset.QmorphLevelGrowth;
             }
+            num *= TraumaSystem.GetScarGainMult(TraumaSystem.GetForCreature(creature));
             return Mathf.Clamp(num, PsyConfig.MinGainMult, PsyConfig.MaxGainMult);
         }
 
@@ -83,6 +100,7 @@ namespace CombatPsychology
                     effectsController.SetEffectDirty(statusEffect);
                 }
             }
+            RaidState.PeakStress = Mathf.Max(RaidState.PeakStress, statusEffect.Level);
         }
     }
 }

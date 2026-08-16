@@ -306,6 +306,31 @@ namespace CombatPsychology
             AddRow(stringBuilder, "ui.psy.fortitude", "Fortitude");
             AddRow(stringBuilder, "ui.psy.stressgain", "stress gain");
             AddRow(stringBuilder, "ui.psy.stressonexpiry", "Stress when it expires");
+            AddRow(stringBuilder, "ui.psy.trauma", "Trauma");
+            AddRow(stringBuilder, "ui.effect.ScarsEffect.caption", "Psychological scars");
+            AddRow(stringBuilder, "ui.effect.ScarsEffect.desc", "Old wounds of the mind ride along on every raid. Trauma accumulates from what a merc endures; treatment is the only way out.");
+            AddRow(stringBuilder, "ui.effect.SurvivorsHighBuff.caption", "Survivor's high");
+            AddRow(stringBuilder, "ui.effect.SurvivorsHighBuff.desc", "Walked out of hell last time and lived. Fortitude +2 for this raid.");
+            AddRow(stringBuilder, "ui.psy.scar.shell_shock.name", "Shell shock");
+            AddRow(stringBuilder, "ui.psy.scar.shell_shock.desc", "Starts raids at 20 stress; explosions are twice as stressful.");
+            AddRow(stringBuilder, "ui.psy.scar.night_terrors.name", "Night terrors");
+            AddRow(stringBuilder, "ui.psy.scar.night_terrors.desc", "Fortitude -1; stress never settles below 10 in the field.");
+            AddRow(stringBuilder, "ui.psy.scar.depression.name", "Depression");
+            AddRow(stringBuilder, "ui.psy.scar.depression.desc", "Fortitude -2; stress gain +25%; perk experience -25%.");
+            AddRow(stringBuilder, "ui.psy.scar.substance_dependence.name", "Substance dependence");
+            AddRow(stringBuilder, "ui.psy.scar.substance_dependence.desc", "Begins every raid already hooked on sedatives.");
+            AddRow(stringBuilder, "ui.psy.scar.death_wish.name", "Death wish");
+            AddRow(stringBuilder, "ui.psy.scar.death_wish.desc", "Breakdowns come easier and turn lethal twice as often; +10% damage dealt.");
+            AddRow(stringBuilder, "ui.psy.scar.cold_blood.name", "Cold blood");
+            AddRow(stringBuilder, "ui.psy.scar.cold_blood.desc", "Fortitude +1; stress gain -20%. Forged by surviving horror after horror, unbroken.");
+            AddRow(stringBuilder, "ui.psy.evaluation", "Psychological evaluation");
+            AddRow(stringBuilder, "ui.psy.evalhint", "Psychological evaluation");
+            AddRow(stringBuilder, "ui.psy.cleanstreak", "Unbroken streak");
+            AddRow(stringBuilder, "ui.psy.pendingnextraid", "active next raid");
+            AddRow(stringBuilder, "ui.psy.noscars", "No psychological scars.");
+            AddRow(stringBuilder, "ui.psy.newscar", "new scar:");
+            AddRow(stringBuilder, "ui.psy.newpositivescar", "hardened:");
+            AddRow(stringBuilder, "ui.psy.scars", "Psychological scars");
             return stringBuilder.ToString();
         }
 

@@ -202,6 +202,66 @@ namespace CombatPsychology
         }
     }
 
+    /// <summary>Persistent scars, surfaced in the effects bar for the whole raid. Wound-effect
+    /// penalties are built lazily on the first tick, when the creature link is guaranteed.</summary>
+    public class ScarsEffect : PsyBuff
+    {
+        [Save]
+        private bool _effectsBuilt;
+
+        public ScarsEffect()
+        {
+            Endless = true;
+        }
+
+        public override float ViewValue => TraumaSystem.GetForCreature(_creature)?.Scars.Count ?? 0;
+
+        public override EffectViewShowValueFormat ShowValueFormat => EffectViewShowValueFormat.Raw;
+
+        public override bool IsRedView => true;
+
+        public override void ProcessActionPoint()
+        {
+            base.ProcessActionPoint();
+            if (_effectsBuilt || _creature == null)
+            {
+                return;
+            }
+            _effectsBuilt = true;
+            MercPsyche mercPsyche = TraumaSystem.GetForCreature(_creature);
+            if (mercPsyche == null)
+            {
+                return;
+            }
+            foreach (string scar in mercPsyche.Scars)
+            {
+                ScarDef scarDef = ScarCatalog.Get(scar);
+                if (scarDef?.WoundEffects == null)
+                {
+                    continue;
+                }
+                foreach (KeyValuePair<string, float> woundEffect in scarDef.WoundEffects)
+                {
+                    AddSubEffect(woundEffect.Key, woundEffect.Value);
+                }
+            }
+        }
+    }
+
+    /// <summary>Extracted at 75+ stress last raid: +2 Fortitude for this one. Display marker;
+    /// the bonus itself is read from RaidState by StressSystem.</summary>
+    public class SurvivorsHighBuff : PsyBuff
+    {
+        public SurvivorsHighBuff()
+        {
+            Endless = true;
+        }
+
+        public override float ViewValue => 2f;
+
+        public override EffectViewShowValueFormat ShowValueFormat => EffectViewShowValueFormat.Raw;
+    }
+
     /// <summary>High fortitude under Fear: the penalties are offset by sheer spite.</summary>
     public class GrimDeterminationBuff : PsyBuff
     {

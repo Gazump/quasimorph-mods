@@ -49,6 +49,12 @@ namespace CombatPsychology
             PropertiesTooltip propertiesTooltip = instance.BuildEmptyTooltip(wide: false, psyBuff.IsRedView);
             propertiesTooltip.SetCaption1(Localization.Get("ui.effect." + psyBuff.BuffId + ".caption"), Colors.White);
             propertiesTooltip.SetCaption2(Localization.Get("ui.label.effect"));
+            if (psyBuff is ScarsEffect scarsEffect)
+            {
+                BuildScarsTooltip(instance, scarsEffect);
+                _createdTooltipField.SetValue(__instance, true);
+                return false;
+            }
             // Same stat-line renderer the stress tooltip uses, fed from this buff's live
             // sub-effects; white value color since these are bonuses, not penalties.
             foreach (WoundEffect item in psyBuff.ResolveSubEffects())
@@ -64,6 +70,26 @@ namespace CombatPsychology
             instance.AddPanelToTooltip().SetMultilineName(Localization.Get("ui.effect." + psyBuff.BuffId + ".desc")).SetNameColor(Colors.DarkYellow);
             _createdTooltipField.SetValue(__instance, true);
             return false;
+        }
+
+        private static void BuildScarsTooltip(TooltipFactory instance, ScarsEffect scarsEffect)
+        {
+            MercPsyche mercPsyche = TraumaSystem.GetForCreature(EffectFields.GetCreature(scarsEffect));
+            if (mercPsyche == null)
+            {
+                return;
+            }
+            instance.AddPanelToTooltip().SetMultilineName(Localization.Get("ui.psy.trauma") + ": " + mercPsyche.Trauma + "/" + TraumaSystem.TraumaMax).SetNameColor(Colors.White);
+            foreach (string scar in mercPsyche.Scars)
+            {
+                ScarDef scarDef = ScarCatalog.Get(scar);
+                if (scarDef != null)
+                {
+                    string text = Localization.Get("ui.psy.scar." + scar + ".name") + " — " + Localization.Get("ui.psy.scar." + scar + ".desc");
+                    instance.AddPanelToTooltip().SetMultilineName(text).SetNameColor(scarDef.Positive ? Colors.AltGreen : Colors.LightRed);
+                }
+            }
+            instance.AddPanelToTooltip().SetMultilineName(Localization.Get("ui.effect.ScarsEffect.desc")).SetNameColor(Colors.DarkYellow);
         }
     }
 
@@ -87,6 +113,14 @@ namespace CombatPsychology
             else if (effect is SecondWindBuff)
             {
                 spriteName = "psy_secondwind_icon";
+            }
+            else if (effect is ScarsEffect)
+            {
+                spriteName = "psy_scars_icon";
+            }
+            else if (effect is SurvivorsHighBuff)
+            {
+                spriteName = "psy_survivorshigh_icon";
             }
             else
             {

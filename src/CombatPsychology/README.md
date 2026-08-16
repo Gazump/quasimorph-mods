@@ -1,9 +1,39 @@
 # CombatPsychology
 
-Psychological effects for mercenaries: combat stress, breakdowns, treatments and the
-occasional battle high. Built on the game's own data-driven `StatusEffect` chassis, so
-stress reads like any other condition — an effects-bar icon with a live percentage,
-tooltips with exact numbers, item lines on anything that treats it.
+Psychological effects for mercenaries: combat stress, breakdowns, treatments, lasting
+trauma and scars. Built on the game's own data-driven `StatusEffect` chassis, so stress
+reads like any other condition — an effects-bar icon with a live percentage, tooltips
+with exact numbers, item lines on anything that treats it.
+
+## Trauma & scars (v2)
+
+What a merc endures follows them home. Trauma (0–100, per merc, persistent — clones
+inherit it) accrues on raid exit from peak stress (50+/75+), amputations, breakdowns and
+near-death moments, plus a flat hit for dying. Quiet raids (peak stress < 25) heal a
+little. Crossing 25/50/75 trauma mints a random scar:
+
+| Scar | Effect |
+|---|---|
+| Shell shock | starts raids at 20 stress; explosions twice as stressful |
+| Night terrors | Fortitude −1; in-raid stress never settles below 10 |
+| Depression | Fortitude −2; stress gain +25%; perk XP −25% |
+| Substance dependence | starts every raid with sedative addiction at 25 |
+| Death wish | (only at 80+ trauma with Depression) breakdowns +10pp, lethal rolls ×2, +10% damage dealt |
+| Cold blood | *positive* — earned by 3 consecutive high-stress raids without a breakdown: Fortitude +1, stress gain −20% |
+
+Extracting alive at 75+ stress grants **Survivor's High**: +2 Fortitude for the next
+raid. Scars show as an in-raid effects-bar icon whose tooltip lists trauma and every
+scar. Persistence rides in a `slot_N_psyche.dat` sidecar next to the vanilla save files
+(same slots, autosaves and deletion behavior).
+
+**On the ship:** returning from a raid queues notification-ticker messages for trauma
+changes and new scars, and won missions list them on the raid statistics window. Every
+mercenary row on the Manage Operators screen gets a brain button — click it for a full
+psych evaluation (trauma, Fortitude, streaks, scars) — and the merc hover tooltip shows
+Fortitude plus a scar count.
+
+Not yet in: scar *treatment* (the Psycho-Correction Bay ship facility) — planned next;
+until then `psy_scar remove` is the only cure.
 
 ## What it adds (v1)
 
@@ -56,7 +86,11 @@ stress tooltip.
 Enable the in-game console mod/dev console, then:
 
 ```
-statuseffect stress 80      // set stress level directly
+psy_stress 80               // force-set stress (statuseffect stress N adds instead)
+psy_psyche                  // list every merc's trauma, scars, streaks
+psy_trauma 60 [profileId]   // set trauma; mints scars at 25/50/75 on the way up
+psy_scar add depression     // grant/remove/clear scars (applies at next raid start)
+psy_dumpicons               // export vanilla icons as art references
 item qm_psy_sedative        // spawn the sedative
 morphine 50                 // vanilla command, for comparing addiction behavior
 ```

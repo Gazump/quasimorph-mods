@@ -25,12 +25,30 @@ namespace CombatPsychology
         {
             RaidState.Reset();
             StressSystem.Difficulty = context.State.Get<Difficulty>();
+            Mercenary mercenary = context.State.Get<Mercenaries>()?.MercenaryInRaid;
+            if (mercenary != null)
+            {
+                TraumaSystem.ApplyAtRaidStart(mercenary);
+            }
         }
 
         [Hook(ModHookType.DungeonFinished)]
         public static void DungeonFinished(IModContext context)
         {
             StressSystem.Difficulty = null;
+        }
+
+        /// <summary>Loading a mid-raid save skips DungeonStarted, so runtime state derived
+        /// there is rebuilt here (RaidState's once-per-raid flags re-arm; acceptable).</summary>
+        [Hook(ModHookType.AfterDungeonLoaded)]
+        public static void AfterDungeonLoaded(IModContext context)
+        {
+            StressSystem.Difficulty = context.State.Get<Difficulty>();
+            Mercenary mercenary = context.State.Get<Mercenaries>()?.MercenaryInRaid;
+            if (mercenary != null && mercenary.CreatureData.EffectsController.HasAnyEffect<SurvivorsHighBuff>())
+            {
+                RaidState.SurvivorsHighActive = true;
+            }
         }
 
         /// <summary>Appends this mod's rows to the game's tab-separated localization table.</summary>
