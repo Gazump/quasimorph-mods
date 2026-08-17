@@ -5,8 +5,6 @@ using MGSC;
 
 namespace LootTracker
 {
-    // Item configs live inside Unity's Resources bundle and cannot be read off disk, so the
-    // only way to see how TechLevel is distributed is to ask the loaded game.
     internal static class TechLevelReport
     {
         public static void Write()

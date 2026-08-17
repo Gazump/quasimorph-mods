@@ -5,11 +5,6 @@ using SimpleJSON;
 
 namespace LootTracker
 {
-    // Only a run id goes into the save. That is safe to leave behind because
-    // LoadFromJSON.LoadFieldsAndProperties looks members up by name and never enumerates the
-    // JSON, so an unknown key is never read and the save still loads without this mod.
-    // A Components entry would not be: DeserializeGlobalComponents resolves types against
-    // Assembly-CSharp only, and a mod type there ends up as Dictionary.Add(null, ...).
     [HarmonyPatch(typeof(ComponentsLayout))]
     internal static class SavePatches
     {

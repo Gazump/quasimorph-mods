@@ -1,9 +1,4 @@
 # Builds a mod and stages the files Steam needs into publish\<UniqueModName>\.
-#
-# Uploading from LocalUserPresets does not work well: that folder has to be empty while
-# testing the subscribed build, or two mods share a UniqueModName and one gets disabled
-# as a duplicate.
-#
 #   .\tools\stage-publish.ps1 -Mod LootTracker -ItemId 3783896795
 param(
     [Parameter(Mandatory = $true)][string]$Mod,

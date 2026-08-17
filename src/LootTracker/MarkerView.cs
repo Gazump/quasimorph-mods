@@ -72,8 +72,6 @@ namespace LootTracker
 
             if (config.ShowGlyph)
             {
-                // Borrow the font from the slot's stack count label rather than reflecting on a
-                // private field that a game update could rename.
                 TextMeshProUGUI template = GetComponentInChildren<TextMeshProUGUI>(true);
                 if (template == null)
                 {

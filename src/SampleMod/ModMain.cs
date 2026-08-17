@@ -3,8 +3,6 @@ using UnityEngine;
 
 namespace SampleMod
 {
-    // Quasimorph reflects over every type in the assembly and collects public static methods
-    // carrying [Hook], so the class name does not matter.
     public static class ModMain
     {
         [Hook(ModHookType.AfterConfigsLoaded)]
@@ -12,8 +10,6 @@ namespace SampleMod
         {
             Debug.Log("[SampleMod] AfterConfigsLoaded. Content path: " + context.ModContentPath);
 
-            // Harmony ships with the game, so patching needs no extra dependency.
-            // new Harmony("com.yourname.samplemod").PatchAll(typeof(ModMain).Assembly);
         }
 
         [Hook(ModHookType.MainMenuStarted)]

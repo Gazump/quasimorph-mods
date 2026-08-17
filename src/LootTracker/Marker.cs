@@ -67,8 +67,6 @@ namespace LootTracker
             return glyph;
         }
 
-        // Tech levels run 1-10 with a special tier at 100, but a 24px slot only fits one
-        // character, so the two wide ones use their Roman forms.
         private static string TechLevelGlyph(int techLevel, ModConfig config)
         {
             if (techLevel >= 1 && techLevel <= 9)

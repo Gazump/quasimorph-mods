@@ -22,9 +22,6 @@ namespace LootTracker
             return OwnedNow.Contains(itemId);
         }
 
-        // Rebuilt at most once per frame, and only on frames where a slot is drawn.
-        // ItemSlot.Initialize is event driven, so this runs a few times when a container
-        // opens and not at all while moving around.
         private static void EnsureFresh()
         {
             int frame = Time.frameCount;
@@ -57,8 +54,6 @@ namespace LootTracker
 
             Collect(Resolve<MagnumProgression>()?.GetDepartment<ShuttleCargoDepartment>()?.ShuttleCargo);
 
-            // Equipped gear lives on the roster. Creatures.Player only exists inside a mission,
-            // so reading only the live player misses everything equipped while on the ship.
             Mercenaries mercenaries = Resolve<Mercenaries>();
             if (mercenaries != null)
             {

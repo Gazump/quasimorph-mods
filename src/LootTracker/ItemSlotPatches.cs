@@ -3,8 +3,6 @@ using MGSC;
 
 namespace LootTracker
 {
-    // Every item icon in the game is drawn through ItemSlot.Initialize: loot containers,
-    // corpses, the floor, backpack and vest, ship cargo.
     [HarmonyPatch(typeof(ItemSlot))]
     internal static class ItemSlotPatches
     {

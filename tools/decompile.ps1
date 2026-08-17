@@ -33,7 +33,6 @@ New-Item -ItemType Directory -Force -Path $out | Out-Null
 
 ilspycmd -p -o $out -r $managed $dll
 
-# The generated project cannot build against the real game and only confuses the C# extension.
 Remove-Item (Join-Path $out 'Assembly-CSharp.csproj') -Force -ErrorAction SilentlyContinue
 
 $count = (Get-ChildItem $out -Recurse -Filter *.cs | Measure-Object).Count

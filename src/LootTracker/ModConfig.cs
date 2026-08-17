@@ -23,7 +23,6 @@ namespace LootTracker
 
         public string OwnedBeforeColor = "#FFFFFF";
 
-        // TopLeft, TopRight, BottomLeft or BottomRight. The stack count sits bottom-right.
         public string Corner = "TopRight";
 
         public float OffsetX = 1f;

@@ -5,7 +5,6 @@ namespace LootTracker
 {
     internal static class Paths
     {
-        // Not the mod folder: Steam replaces that on every workshop update.
         public static string DataDirectory
         {
             get { return Path.Combine(Application.persistentDataPath, "LootTracker"); }

@@ -30,9 +30,6 @@ namespace LootTracker
             }
         }
 
-        // The game has no identifier for a playthrough, so one is minted here and stored with
-        // the save. A new game mints a new id, which keeps a reused slot from inheriting an
-        // old registry.
         public static string EnsureRunId()
         {
             if (string.IsNullOrEmpty(_runId))
