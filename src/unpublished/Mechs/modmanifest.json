@@ -1,0 +1,12 @@
+{
+  "UniqueModName": "Mechs",
+  "Assemblies": [
+    "Mechs.dll"
+  ],
+  "Dependencies": [],
+  "SteamTags": [
+    "Gameplay",
+    "1.0",
+    "1.0.1"
+  ]
+}

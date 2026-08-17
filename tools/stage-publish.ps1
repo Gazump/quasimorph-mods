@@ -8,13 +8,15 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $root = Resolve-Path (Join-Path $PSScriptRoot '..')
-$project = Join-Path $root "src\$Mod\$Mod.csproj"
-if (-not (Test-Path $project)) { throw "No project at $project" }
+$modDir = Join-Path $root "src\$Mod"
+if (-not (Test-Path (Join-Path $modDir "$Mod.csproj"))) { $modDir = Join-Path $root "src\unpublished\$Mod" }
+$project = Join-Path $modDir "$Mod.csproj"
+if (-not (Test-Path $project)) { throw "No project at src\$Mod or src\unpublished\$Mod" }
 
 dotnet build $project /p:QmDeploy=false /v:minimal
 if ($LASTEXITCODE -ne 0) { throw "Build failed." }
 
-$manifestPath = Join-Path $root "src\$Mod\modmanifest.json"
+$manifestPath = Join-Path $modDir "modmanifest.json"
 $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
 $uniqueName = $manifest.UniqueModName
 if (-not $uniqueName) { throw "modmanifest.json has no UniqueModName." }
@@ -24,13 +26,13 @@ if (Test-Path $dest) { Remove-Item $dest -Recurse -Force }
 New-Item -ItemType Directory -Force -Path $dest | Out-Null
 
 foreach ($assembly in $manifest.Assemblies) {
-    $built = Join-Path $root "src\$Mod\bin\Debug\$assembly"
+    $built = Join-Path $modDir "bin\Debug\$assembly"
     if (-not (Test-Path $built)) { throw "Manifest lists $assembly but it was not built." }
     Copy-Item $built $dest
 }
 Copy-Item $manifestPath $dest
 
-$thumb = Join-Path $root "src\$Mod\thumbnail.png"
+$thumb = Join-Path $modDir "thumbnail.png"
 if (Test-Path $thumb) {
     if ((Get-Item $thumb).Length -gt 1MB) { Write-Warning "thumbnail.png is over Steam's 1 MB preview limit." }
     Copy-Item $thumb $dest
@@ -38,7 +40,7 @@ if (Test-Path $thumb) {
     Write-Warning "No thumbnail.png - Steam will keep the item's current preview."
 }
 
-$extra = Join-Path $root "src\$Mod\content"
+$extra = Join-Path $modDir "content"
 if (Test-Path $extra) { Copy-Item "$extra\*" $dest -Recurse }
 
 Write-Host ""
