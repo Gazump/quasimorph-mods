@@ -84,3 +84,10 @@ dotnet tool install -g ilspycmd --version 9.0.0.7889
 2. Rename the `.csproj` and update `AssemblyName`, `RootNamespace` and `UniqueModName`.
 3. Match `UniqueModName` and `Assemblies` in `modmanifest.json`.
 4. `dotnet sln QuasimorphMods.sln add src/<NewName>/<NewName>.csproj`
+
+## License
+
+© 2026 Nathan Boshoff (Gazump). Licensed under
+[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/): use, modify and
+redistribute freely with attribution; commercial use is not permitted. See
+[LICENSE](LICENSE).
