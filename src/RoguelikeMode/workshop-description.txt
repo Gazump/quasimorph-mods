@@ -1,36 +1,48 @@
-[b]⚠ EXPERIMENTAL (v0.1)[/b] — a brand-new game mode under active development. It never touches your campaign save slots, but expect rough edges and balance swings between versions.
+A pure roguelike mode. No ship or campaign, just ten levels of increasing difficulty as you start with nothing and scavenge your way to the Golden Keycard, your only way out of this pit of hell.
 
-A pure roguelike mode for Quasimorph: no ship, no campaign, no safety net. Start with empty pockets on floor 1, scavenge everything from the corpses and lockers around you, and ride the elevators down through ten escalating floors. The [b]GOLDEN KEYCARD[/b] waits at the bottom — seize it, call the evacuation, and reach an elevator to win. Die once and the run is over.
+[b]⚠ EXPERIMENTAL v0.1[/b] — this is under active development and so there may be some bugs. It never touches campaign slots, so it should be safe to use. Always back up saves before using new mods!
 
 [h2]The Dive[/h2]
-One new main-menu button opens the mode's own screen:
+Find the new game mode button on the main menu. Clicking this takes you to [b]The Dive - Roguelike Mode[/b], where you can choose between:
 [list]
-[*]Pick [b]DAILY DIVE[/b] or [b]RANDOM DIVE[/b], a difficulty (Easy / Normal / Hard), and one of three operators — hover any operator to inspect their full stats and perks
-[*]The [b]DIVE LOG[/b] tracks your last run and your best scores
-[*]Quitting mid-run is safe: [b]RESUME DESCENT[/b] restarts you at the top of the floor you were on
+[*][b]Daily Dive[/b] — a seed-based run which is the same for everyone on the same day
+[*][b]Random Dive[/b] — a completely random run
 [/list]
 
-[h2]The descent[/h2]
+Then choose difficulty, which loosely maps to the game's difficulties:
 [list]
-[*]Ten procedurally generated floors, each with its own biome, enemies and loot — the next elevator ride is always a surprise
-[*]Enemy density, gear tech level and map size all escalate with depth. Elevators only go down
-[*]On Easy and Normal a small supply cache waits at each floor's entrance
-[*]Class chips found in the field can be learned on the spot — right-click one to retrain your operator mid-run
-[*]Tutorial popups are silenced during runs; achievements are disabled so runs can't farm them
+[*][b]Easy[/b] — get a significant supply crate near the entrance to each elevator
+[*][b]Normal[/b] — get a small supply crate near the entrance to each elevator
+[*][b]Hard[/b] — nope
 [/list]
 
-[h2]The Daily Dive[/h2]
-The daily run is seeded from the UTC date: [b]everyone in the world gets the same ten floors, the same enemies, the same loot and the same three operators to choose from[/b]. Same day, same tower — compare scores with friends. Re-rolling is impossible by design. An online daily ladder is in development.
+Then choose one of three randomly generated characters. For a Daily Dive, these are the same for everyone. They roll with random stats [i]and[/i] classes.
+
+[h2]Objective[/h2]
+Find the [b]Golden Keycard[/b] on the bottom level (level 10). This is the only way to win the run and provides a significant bonus to your run score!
 
 [h2]Scoring[/h2]
-Runs are scored on depth reached, kills, victory and damage taken, with a difficulty multiplier. Your best runs are kept locally and shown in the DIVE LOG. For fair comparisons (and the future ladder), play with this mod solo — the run summary tells you when other mods were active.
+The score for a run is determined by a number of factors, not exhaustively:
+[list]
+[*]Level reached
+[*]Kills
+[*]Victory bonus
+[*]Damage taken
+[*]Difficulty multiplier
+[/list]
 
-[h2]Saves & compatibility[/h2]
-Roguelike runs use no save slots at all — your campaign saves are never touched, written to, or read. Run state and high scores live in separate [i]roguelike_*.dat[/i] files, so the mod can be removed at any time without harming a campaign. Built on the game's own mission, generation and difficulty systems with a small set of targeted Harmony patches.
+[h2]Dive Log[/h2]
+Runs are kept locally in your dive log. Mods can make runs easier, so mods are counted and recorded for each run. Future ladder runs, which may eventually share a global leaderboard, will restrict mods for official timed runs. This isn't implemented yet! There are no save slots used, but run history is stored in mod-specific [i]roguelike_*.dat[/i] files alongside your save files.
 
-[h2]Console commands[/h2]
-[i]rogue_start [0-2] [random] [easy|normal|hard][/i], [i]rogue_scores[/i], [i]rogue_info[/i], [i]rogue_abort[/i]
+[h2]Additional Mechanics/Changes[/h2]
+[list]
+[*][b]Updating class[/b] — if you find an item which unlocks a new class/perk, you can now apply that during the run. This makes these items much more useful and interesting to find!
+[/list]
 
-Support via [url=https://ko-fi.com/gazump]ko-fi.com/gazump[/url]; source code on [url=https://github.com/Gazump/quasimorph-mods]GitHub[/url].
+[h2]Support[/h2]
+If you like my mods so much that you'd like to buy me a coffee, you can do so at [url=https://ko-fi.com/gazump]ko-fi.com/gazump[/url].
+
+[h2]Source[/h2]
+Source code for all my mods can be found on GitHub: [url=https://github.com/Gazump/quasimorph-mods]github.com/Gazump/quasimorph-mods[/url]
 
 [b]Version:[/b] 0.1.0 (Experimental, 18 Aug)
