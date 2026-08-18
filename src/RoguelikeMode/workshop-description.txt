@@ -1,0 +1,29 @@
+[b]⚠ EXPERIMENTAL (v0.1)[/b] — a brand-new game mode under active development. It never touches your campaign save slots, but expect rough edges and balance swings between versions.
+
+A pure roguelike mode for Quasimorph: no ship, no campaign, no safety net. Start with empty pockets on floor 1, scavenge everything from the corpses and lockers around you, and ride the elevators down through ten escalating floors. The [b]GOLDEN KEYCARD[/b] waits at the bottom — seize it, call the evacuation, and reach an elevator to win. Die once and the run is over.
+
+[h2]How it works[/h2]
+[list]
+[*]Two new main-menu buttons: [b]DAILY DESCENT[/b] and [b]RANDOM DESCENT[/b]
+[*]Pick a difficulty (Easy / Normal / Hard), then one of three operators — hover to inspect their stats and perks
+[*]Every floor is procedurally generated with its own biome, enemies and loot — the next elevator ride is always a surprise
+[*]Difficulty, enemy gear and map size all escalate with depth. Elevators only go down
+[*]On Easy and Normal a small supply cache waits at each floor's entrance
+[*]Class chips found in the field can be learned on the spot — right-click to retrain your operator mid-run
+[/list]
+
+[h2]The Daily Descent[/h2]
+The daily run is seeded from the UTC date: [b]everyone in the world gets the same ten floors, the same enemies, the same loot and the same three operators to choose from[/b]. Same day, same tower — compare scores with friends. Re-rolling is impossible by design. An online daily ladder is in development.
+
+[h2]Scoring[/h2]
+Runs are scored on depth reached, kills, victory, and damage taken, with a difficulty multiplier. Local high scores are kept per install ([i]rogue_scores[/i] in the console). Quitting mid-run is safe: the run resumes from the start of the current floor.
+
+[h2]Saves & compatibility[/h2]
+Roguelike runs use no save slots at all — your campaign saves are never touched, written to, or read. Run state and high scores live in separate [i]roguelike_*.dat[/i] files. Achievements are disabled during runs. Other mods work alongside, but for fair daily comparisons (and the future ladder) run this mod solo — the run summary tells you when other mods were active.
+
+[h2]Console commands[/h2]
+[i]rogue_start [0-2] [random] [easy|normal|hard][/i], [i]rogue_scores[/i], [i]rogue_info[/i], [i]rogue_abort[/i]
+
+Support via [url=https://ko-fi.com/gazump]ko-fi.com/gazump[/url]; source code on [url=https://github.com/Gazump/quasimorph-mods]GitHub[/url].
+
+[b]Version:[/b] 0.1.0 (Experimental, 17 Aug)

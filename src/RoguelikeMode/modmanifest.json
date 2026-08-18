@@ -1,0 +1,12 @@
+{
+  "UniqueModName": "RoguelikeMode",
+  "Assemblies": [
+    "RoguelikeMode.dll"
+  ],
+  "Dependencies": [],
+  "SteamTags": [
+    "Gameplay",
+    "1.0",
+    "1.0.1"
+  ]
+}
