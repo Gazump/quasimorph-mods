@@ -12,7 +12,7 @@ namespace RoguelikeMode
             Registration.ContentPath = context.ModContentPath;
             Registration.RegisterAll();
             new Harmony(RogueConfig.HarmonyId).PatchAll(typeof(ModMain).Assembly);
-            Debug.Log("[RoguelikeMode] Loaded: daily descent, " + RogueConfig.FloorCount + " floors.");
+            Debug.Log("[RoguelikeMode] Loaded: The Dive, " + RogueConfig.FloorCount + " floors.");
         }
 
         [Hook(ModHookType.MainMenuStarted)]

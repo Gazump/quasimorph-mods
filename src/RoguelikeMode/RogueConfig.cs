@@ -16,14 +16,11 @@ namespace RoguelikeMode
         public const int FloorCount = 10;
         public const int MissionDifficultyRating = 100;
         public const string StoryId = "RogueDescent";
-        public const string DailyCaptionKey = "ui.rogue.dailybutton";
-        public const string RandomCaptionKey = "ui.rogue.randombutton";
         public const string EasyCaptionKey = "ui.rogue.easy";
         public const string NormalCaptionKey = "ui.rogue.normal";
         public const string HardCaptionKey = "ui.rogue.hard";
         public const string BackCaptionKey = "ui.rogue.back";
         public const string ResumeCaptionKey = "ui.rogue.resume";
-        public const string ContinueCaptionKey = "ui.rogue.continue";
         public const string DiveButtonCaptionKey = "ui.dive.menubutton";
         public const int LearnClassContextBind = 5100;
         public const string HarmonyId = "quasimorph.roguelikemode";

@@ -397,9 +397,9 @@ namespace RoguelikeMode
         private string BuildSummary(bool victory, GameFinishedReason reason, int turns, int kills, RogueScoreEntry entry)
         {
             string headline = victory
-                ? "THE GOLDEN KEYCARD IS YOURS. You conquered the descent."
+                ? "THE GOLDEN KEYCARD IS YOURS. You conquered the Dive."
                 : (reason == GameFinishedReason.PlayerDead || reason == GameFinishedReason.GameOver)
-                    ? "The descent claimed you."
+                    ? "The Dive claimed you."
                     : "Run abandoned.";
             string runLabel = RogueRun.Daily ? ("Daily run: " + RogueRun.DayLabel) : "Random run";
             string modsLine = (RogueRun.ActiveMods.Count > 0)

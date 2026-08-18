@@ -19,14 +19,11 @@ namespace RoguelikeMode
 
         private static void InjectStrings()
         {
-            LocalizationInjector.Set(RogueConfig.DailyCaptionKey, "DAILY DESCENT");
-            LocalizationInjector.Set(RogueConfig.RandomCaptionKey, "RANDOM DESCENT");
             LocalizationInjector.Set(RogueConfig.EasyCaptionKey, "EASY");
             LocalizationInjector.Set(RogueConfig.NormalCaptionKey, "NORMAL");
             LocalizationInjector.Set(RogueConfig.HardCaptionKey, "HARD");
             LocalizationInjector.Set(RogueConfig.BackCaptionKey, "< BACK");
-            LocalizationInjector.Set(RogueConfig.ResumeCaptionKey, "RESUME DESCENT");
-            LocalizationInjector.Set(RogueConfig.ContinueCaptionKey, "CONTINUE");
+            LocalizationInjector.Set(RogueConfig.ResumeCaptionKey, "RESUME DIVE");
             LocalizationInjector.Set(RogueConfig.DiveButtonCaptionKey, "THE DIVE - ROGUELIKE MODE");
             LocalizationInjector.Set("item." + RogueConfig.KeycardId + ".name", "GOLDEN KEYCARD");
             LocalizationInjector.Set("item." + RogueConfig.KeycardId + ".shortdesc", "The way out.");
