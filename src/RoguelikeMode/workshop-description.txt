@@ -2,28 +2,35 @@
 
 A pure roguelike mode for Quasimorph: no ship, no campaign, no safety net. Start with empty pockets on floor 1, scavenge everything from the corpses and lockers around you, and ride the elevators down through ten escalating floors. The [b]GOLDEN KEYCARD[/b] waits at the bottom — seize it, call the evacuation, and reach an elevator to win. Die once and the run is over.
 
-[h2]How it works[/h2]
+[h2]The Dive[/h2]
+One new main-menu button opens the mode's own screen:
 [list]
-[*]Two new main-menu buttons: [b]DAILY DESCENT[/b] and [b]RANDOM DESCENT[/b]
-[*]Pick a difficulty (Easy / Normal / Hard), then one of three operators — hover to inspect their stats and perks
-[*]Every floor is procedurally generated with its own biome, enemies and loot — the next elevator ride is always a surprise
-[*]Difficulty, enemy gear and map size all escalate with depth. Elevators only go down
-[*]On Easy and Normal a small supply cache waits at each floor's entrance
-[*]Class chips found in the field can be learned on the spot — right-click to retrain your operator mid-run
+[*]Pick [b]DAILY DIVE[/b] or [b]RANDOM DIVE[/b], a difficulty (Easy / Normal / Hard), and one of three operators — hover any operator to inspect their full stats and perks
+[*]The [b]DIVE LOG[/b] tracks your last run and your best scores
+[*]Quitting mid-run is safe: [b]RESUME DESCENT[/b] restarts you at the top of the floor you were on
 [/list]
 
-[h2]The Daily Descent[/h2]
+[h2]The descent[/h2]
+[list]
+[*]Ten procedurally generated floors, each with its own biome, enemies and loot — the next elevator ride is always a surprise
+[*]Enemy density, gear tech level and map size all escalate with depth. Elevators only go down
+[*]On Easy and Normal a small supply cache waits at each floor's entrance
+[*]Class chips found in the field can be learned on the spot — right-click one to retrain your operator mid-run
+[*]Tutorial popups are silenced during runs; achievements are disabled so runs can't farm them
+[/list]
+
+[h2]The Daily Dive[/h2]
 The daily run is seeded from the UTC date: [b]everyone in the world gets the same ten floors, the same enemies, the same loot and the same three operators to choose from[/b]. Same day, same tower — compare scores with friends. Re-rolling is impossible by design. An online daily ladder is in development.
 
 [h2]Scoring[/h2]
-Runs are scored on depth reached, kills, victory, and damage taken, with a difficulty multiplier. Local high scores are kept per install ([i]rogue_scores[/i] in the console). Quitting mid-run is safe: the run resumes from the start of the current floor.
+Runs are scored on depth reached, kills, victory and damage taken, with a difficulty multiplier. Your best runs are kept locally and shown in the DIVE LOG. For fair comparisons (and the future ladder), play with this mod solo — the run summary tells you when other mods were active.
 
 [h2]Saves & compatibility[/h2]
-Roguelike runs use no save slots at all — your campaign saves are never touched, written to, or read. Run state and high scores live in separate [i]roguelike_*.dat[/i] files. Achievements are disabled during runs. Other mods work alongside, but for fair daily comparisons (and the future ladder) run this mod solo — the run summary tells you when other mods were active.
+Roguelike runs use no save slots at all — your campaign saves are never touched, written to, or read. Run state and high scores live in separate [i]roguelike_*.dat[/i] files, so the mod can be removed at any time without harming a campaign. Built on the game's own mission, generation and difficulty systems with a small set of targeted Harmony patches.
 
 [h2]Console commands[/h2]
 [i]rogue_start [0-2] [random] [easy|normal|hard][/i], [i]rogue_scores[/i], [i]rogue_info[/i], [i]rogue_abort[/i]
 
 Support via [url=https://ko-fi.com/gazump]ko-fi.com/gazump[/url]; source code on [url=https://github.com/Gazump/quasimorph-mods]GitHub[/url].
 
-[b]Version:[/b] 0.1.0 (Experimental, 17 Aug)
+[b]Version:[/b] 0.1.0 (Experimental, 18 Aug)
