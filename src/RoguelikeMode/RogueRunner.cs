@@ -319,6 +319,16 @@ namespace RoguelikeMode
             StartCoroutine(_dungeon.Run());
         }
 
+        public void JumpToFloor(int floor)
+        {
+            StartCoroutine(ProcessNextFloor(new DungeonFinishedData
+            {
+                Reason = GameFinishedReason.MoveNextLocation,
+                To = new LocationAddress("stage" + floor, Mathf.Max(0, floor - 1)),
+                TransitionType = TransitionType.Lifts
+            }));
+        }
+
         private void DungeonFinished(DungeonFinishedData data)
         {
             Debug.Log($"[RoguelikeMode] Floor finished, reason {data.Reason}, to '{data.To?.LocationUniqueId}'.");

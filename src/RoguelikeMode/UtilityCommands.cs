@@ -48,6 +48,53 @@ namespace RoguelikeMode
         }
     }
 
+    [ConsoleCommand(new string[] { "rogue_goto" })]
+    public class RogueGotoCommand
+    {
+        [Inject(false)]
+        private readonly GameModeStateMachine _stateMachine = null;
+
+        public static string Help(string command, bool verbose)
+        {
+            return "Debug: jump to a floor of the active roguelike run. Syntax: rogue_goto <1-" + RogueConfig.FloorCount + ">";
+        }
+
+        public string Execute(string[] tokens)
+        {
+            if (!RogueRun.Active)
+            {
+                return "no active roguelike run";
+            }
+            if (SingletonMonoBehaviour<DungeonGameMode>.Instance == null)
+            {
+                return "not in a dungeon";
+            }
+            if (tokens == null || tokens.Length == 0)
+            {
+                return "Usage: rogue_goto <1-" + RogueConfig.FloorCount + ">";
+            }
+            int floor = Mathf.Clamp(ParseHelper.ParseInt(tokens[0]), 1, RogueConfig.FloorCount);
+            State state = HarmonyLib.AccessTools.Field(typeof(GameModeStateMachine), "_state").GetValue(_stateMachine) as State;
+            RogueRunner.Get(state).JumpToFloor(floor);
+            return "jumping to floor " + floor;
+        }
+
+        public static List<string> FetchAutocompleteOptions(string command, string[] tokens)
+        {
+            return new List<string> { "10" };
+        }
+
+        public static bool IsAvailable()
+        {
+            return RogueRun.Active;
+        }
+
+        public static bool ShowInHelpAndAutocomplete()
+        {
+            return true;
+        }
+    }
+
     [ConsoleCommand(new string[] { "rogue_httptest" })]
     public class RogueHttpTestCommand
     {

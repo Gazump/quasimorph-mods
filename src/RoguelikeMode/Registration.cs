@@ -116,23 +116,30 @@ namespace RoguelikeMode
             ItemContentDescriptor source = template.ContentDescriptor as ItemContentDescriptor;
             ItemContentDescriptor descriptor = Object.Instantiate(source);
             descriptor.name = RogueConfig.KeycardId;
-            Sprite customIcon = LoadKeycardIcon(source.Icon);
+            Sprite customIcon = LoadKeycardIcon(source.Icon, "rogue_golden_keycard.png");
             if (customIcon != null)
             {
                 typeof(ItemContentDescriptor)
                     .GetField("_icon", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
                     ?.SetValue(descriptor, customIcon);
             }
+            Sprite customSmallIcon = LoadKeycardIcon(source.SmallIcon, "rogue_golden_keycard_small.png");
+            if (customSmallIcon != null)
+            {
+                typeof(ItemContentDescriptor)
+                    .GetField("_smallIcon", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    ?.SetValue(descriptor, customSmallIcon);
+            }
             return descriptor;
         }
 
-        private static Sprite LoadKeycardIcon(Sprite reference)
+        private static Sprite LoadKeycardIcon(Sprite reference, string fileName)
         {
             if (string.IsNullOrEmpty(ContentPath) || reference == null)
             {
                 return null;
             }
-            string path = System.IO.Path.Combine(ContentPath, "rogue_golden_keycard.png");
+            string path = System.IO.Path.Combine(ContentPath, fileName);
             if (!System.IO.File.Exists(path))
             {
                 Debug.LogWarning("[RoguelikeMode] Keycard icon PNG not found at " + path);
@@ -146,7 +153,7 @@ namespace RoguelikeMode
             texture.filterMode = FilterMode.Point;
             float ppu = reference.pixelsPerUnit * (texture.width / reference.rect.width);
             Sprite sprite = Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), ppu);
-            sprite.name = RogueConfig.KeycardId;
+            sprite.name = System.IO.Path.GetFileNameWithoutExtension(fileName);
             return sprite;
         }
 
