@@ -7,6 +7,36 @@ using UnityEngine.UI;
 
 namespace RoguelikeMode
 {
+    public class DiveClock : MonoBehaviour
+    {
+        public TextMeshProUGUI Label;
+
+        private int _lastSecond = -1;
+        private string _day = RogueRun.TodayLabel();
+
+        private void Update()
+        {
+            if (Label == null)
+            {
+                return;
+            }
+            DateTime now = DateTime.UtcNow;
+            if (now.Second == _lastSecond)
+            {
+                return;
+            }
+            _lastSecond = now.Second;
+            TimeSpan left = now.Date.AddDays(1) - now;
+            Label.text = $"DAILY RESETS IN {(int)left.TotalHours:00}:{left.Minutes:00}:{left.Seconds:00}";
+            string today = RogueRun.TodayLabel();
+            if (_day != today)
+            {
+                _day = today;
+                DiveScreen.OnDayRollover();
+            }
+        }
+    }
+
     public static class DiveScreen
     {
         private static GameObject _root;
@@ -74,7 +104,20 @@ namespace RoguelikeMode
 
             AddLabel(_root.transform, "ui.dive.title", "THE DIVE", 0.04f, 0.92f, 0.6f, 0.98f, 34f, TextAlignmentOptions.Left);
             LocalizationInjector.Set("ui.dive.day", RogueRun.Daily ? ("DAILY: " + RogueRun.DayLabel) : "RANDOM DIVE");
-            AddLabel(_root.transform, "ui.dive.day", null, 0.6f, 0.92f, 0.96f, 0.98f, 22f, TextAlignmentOptions.Right);
+            AddLabel(_root.transform, "ui.dive.day", null, 0.6f, 0.93f, 0.96f, 0.98f, 22f, TextAlignmentOptions.Right);
+            GameObject clockLabel = CloneLabel(_root.transform);
+            RectTransform clockRect = clockLabel.transform as RectTransform;
+            clockRect.anchorMin = new Vector2(0.6f, 0.895f);
+            clockRect.anchorMax = new Vector2(0.96f, 0.93f);
+            clockRect.offsetMin = Vector2.zero;
+            clockRect.offsetMax = Vector2.zero;
+            TextMeshProUGUI clockText = clockLabel.GetComponent<TextMeshProUGUI>();
+            clockText.enableAutoSizing = false;
+            clockText.alignment = TextAlignmentOptions.Right;
+            clockText.fontSize = clockText.fontSize * 0.75f;
+            UnityEngine.Object.Destroy(clockLabel.GetComponent<LocalizableLabel>());
+            DiveClock clock = _root.AddComponent<DiveClock>();
+            clock.Label = clockText;
 
             RectTransform leftPanel = AddPanel(0.04f, 0.06f, 0.40f, 0.90f);
             VerticalLayoutGroup leftLayout = leftPanel.gameObject.AddComponent<VerticalLayoutGroup>();
@@ -366,6 +409,15 @@ namespace RoguelikeMode
         private static void CloseClicked()
         {
             Close();
+        }
+
+        public static void OnDayRollover()
+        {
+            if (_root == null || RogueRun.Active)
+            {
+                return;
+            }
+            Open(_state, null);
         }
     }
 }

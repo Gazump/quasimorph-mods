@@ -25,6 +25,8 @@ namespace RoguelikeMode
             LocalizationInjector.Set(RogueConfig.BackCaptionKey, "< BACK");
             LocalizationInjector.Set(RogueConfig.ResumeCaptionKey, "RESUME DIVE");
             LocalizationInjector.Set(RogueConfig.DiveButtonCaptionKey, "THE DIVE - ROGUELIKE MODE");
+            LocalizationInjector.Set(RogueConfig.TerminalCaptionKey, "BARTER TERMINAL");
+            LocalizationInjector.Set(RogueConfig.TradeInCaptionKey, "TRADE-IN");
             LocalizationInjector.Set("item." + RogueConfig.KeycardId + ".name", "GOLDEN KEYCARD");
             LocalizationInjector.Set("item." + RogueConfig.KeycardId + ".shortdesc", "The way out.");
             LocalizationInjector.Set("mission." + RogueConfig.StoryId + ".objective0",
@@ -111,26 +113,40 @@ namespace RoguelikeMode
         private static ItemContentDescriptor CloneDescriptor(TrashRecord template)
         {
             ItemContentDescriptor source = template.ContentDescriptor as ItemContentDescriptor;
-            ItemContentDescriptor descriptor = Object.Instantiate(source);
+            SkullDescriptor descriptor = ScriptableObject.CreateInstance<SkullDescriptor>();
+            CopyDescriptorFields(source, descriptor);
             descriptor.name = RogueConfig.KeycardId;
-            Sprite customIcon = LoadKeycardIcon(source.Icon, "rogue_golden_keycard.png");
-            if (customIcon != null)
+            Sprite[] iconFrames = LoadContentSheet(source.Icon, "rogue_golden_keycard.png");
+            if (iconFrames != null && iconFrames.Length > 0)
             {
-                typeof(ItemContentDescriptor)
-                    .GetField("_icon", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-                    ?.SetValue(descriptor, customIcon);
+                AccessTools.Field(typeof(ItemContentDescriptor), "_icon").SetValue(descriptor, iconFrames[0]);
+                KeycardPulse.IconFrames = iconFrames;
             }
-            Sprite customSmallIcon = LoadKeycardIcon(source.SmallIcon, "rogue_golden_keycard_small.png");
-            if (customSmallIcon != null)
+            Sprite[] floorFrames = LoadContentSheet(source.SmallIcon, "rogue_golden_keycard_small.png");
+            if (floorFrames != null && floorFrames.Length > 0)
             {
-                typeof(ItemContentDescriptor)
-                    .GetField("_smallIcon", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-                    ?.SetValue(descriptor, customSmallIcon);
+                AccessTools.Field(typeof(ItemContentDescriptor), "_smallIcon").SetValue(descriptor, floorFrames[0]);
+                AccessTools.Field(typeof(SkullDescriptor), "_iconsOnFloor").SetValue(descriptor, floorFrames);
+                AccessTools.Field(typeof(SkullDescriptor), "_shadowsOnFloor").SetValue(descriptor, new Sprite[floorFrames.Length]);
+                AccessTools.Field(typeof(SkullDescriptor), "_frameRate").SetValue(descriptor, 4f);
             }
             return descriptor;
         }
 
-        private static Sprite LoadKeycardIcon(Sprite reference, string fileName)
+        private static void CopyDescriptorFields(ItemContentDescriptor source, ItemContentDescriptor target)
+        {
+            System.Type type = typeof(ItemContentDescriptor);
+            while (type != null && type != typeof(ScriptableObject) && type != typeof(Object))
+            {
+                foreach (System.Reflection.FieldInfo field in type.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.DeclaredOnly))
+                {
+                    field.SetValue(target, field.GetValue(source));
+                }
+                type = type.BaseType;
+            }
+        }
+
+        internal static Sprite[] LoadContentSheet(Sprite reference, string fileName)
         {
             if (string.IsNullOrEmpty(ContentPath) || reference == null)
             {
@@ -139,7 +155,7 @@ namespace RoguelikeMode
             string path = System.IO.Path.Combine(ContentPath, fileName);
             if (!System.IO.File.Exists(path))
             {
-                Debug.LogWarning("[RoguelikeMode] Keycard icon PNG not found at " + path);
+                Debug.LogWarning("[RoguelikeMode] Content PNG not found at " + path);
                 return null;
             }
             Texture2D texture = new Texture2D(2, 2, TextureFormat.RGBA32, mipChain: false);
@@ -148,10 +164,17 @@ namespace RoguelikeMode
                 return null;
             }
             texture.filterMode = FilterMode.Point;
-            float ppu = reference.pixelsPerUnit * (texture.width / reference.rect.width);
-            Sprite sprite = Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), ppu);
-            sprite.name = System.IO.Path.GetFileNameWithoutExtension(fileName);
-            return sprite;
+            int frameSize = texture.height;
+            int count = Mathf.Max(1, texture.width / frameSize);
+            float ppu = reference.pixelsPerUnit * (frameSize / reference.rect.width);
+            Vector2 pivot = new Vector2(reference.pivot.x / reference.rect.width, reference.pivot.y / reference.rect.height);
+            Sprite[] frames = new Sprite[count];
+            for (int i = 0; i < count; i++)
+            {
+                frames[i] = Sprite.Create(texture, new Rect(i * frameSize, 0f, frameSize, frameSize), pivot, ppu);
+                frames[i].name = System.IO.Path.GetFileNameWithoutExtension(fileName) + "_" + i;
+            }
+            return frames;
         }
 
         private static void ExtendElevatorFloorMap()

@@ -102,7 +102,7 @@
     <Copy SourceFiles="$(MSBuildProjectDirectory)\thumbnail.png" DestinationFolder="$(_QmDest)"
           Condition="Exists('$(MSBuildProjectDirectory)\thumbnail.png')" />
     <ItemGroup>
-      <_QmExtra Include="$(MSBuildProjectDirectory)\content\**\*" />
+      <_QmExtra Include="$(MSBuildProjectDirectory)\content\**\*" Exclude="$(MSBuildProjectDirectory)\content\**\*.aseprite" />
     </ItemGroup>
     <Copy SourceFiles="@(_QmExtra)" DestinationFiles="@(_QmExtra->'$(_QmDest)\%(RecursiveDir)%(Filename)%(Extension)')" />
     <Message Importance="high" Text="Deployed $(UniqueModName) -> $(_QmDest)" />

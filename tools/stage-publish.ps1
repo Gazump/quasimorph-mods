@@ -41,7 +41,7 @@ if (Test-Path $thumb) {
 }
 
 $extra = Join-Path $modDir "content"
-if (Test-Path $extra) { Copy-Item "$extra\*" $dest -Recurse }
+if (Test-Path $extra) { Copy-Item "$extra\*" $dest -Recurse -Exclude '*.aseprite' }
 
 Write-Host ""
 Write-Host "Staged $uniqueName to $dest" -ForegroundColor Green

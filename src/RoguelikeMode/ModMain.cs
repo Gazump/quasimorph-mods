@@ -45,7 +45,17 @@ namespace RoguelikeMode
                 }
             }
             AchievementManager.SetRuntimeDisabled(disabled: true);
-            SupplyCache.Spawn(context.State);
+            bool exactResume = RogueRun.ResumingExactState;
+            RogueRun.ResumingExactState = false;
+            if (exactResume)
+            {
+                TradeTerminal.Rebind(context.State);
+            }
+            else
+            {
+                SupplyCache.Spawn(context.State);
+                TradeTerminal.Spawn(context.State);
+            }
             Creatures creatures = context.State.Get<Creatures>();
             creatures.MonsterInjured += (victimData, hit, result) =>
             {
@@ -54,7 +64,10 @@ namespace RoguelikeMode
                     RogueRun.DamageTaken += hit.finalDmg;
                 }
             };
-            RunPersistence.SaveFloorEntry(context.State);
+            if (!exactResume)
+            {
+                RunPersistence.SaveFloorEntry(context.State);
+            }
             Debug.Log($"[RoguelikeMode] Entered floor {floor}/{RogueConfig.FloorCount} ({locationMetadata.LocationId}), seed day {RogueRun.DayLabel}.");
         }
 

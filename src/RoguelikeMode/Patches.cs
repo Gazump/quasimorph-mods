@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using HarmonyLib;
 using MGSC;
 
@@ -70,6 +71,49 @@ namespace RoguelikeMode
         public static bool Prefix()
         {
             return !RogueRun.Active;
+        }
+    }
+
+    [HarmonyPatch(typeof(ConsoleDaemon), "ExecuteCommandInternal")]
+    public static class CheatWatchPatch
+    {
+        private static readonly string[] AllowedCommands = { "help", "clear", "rogue_info", "rogue_scores", "rogue_start", "rogue_abort", "rogue_httptest" };
+
+        public static void Postfix(ConsoleDaemon __instance, string commandString, ref string __result)
+        {
+            if (!RogueRun.Active || RogueRun.CheatsUsed || string.IsNullOrEmpty(commandString))
+            {
+                return;
+            }
+            string command = commandString.Trim().Split(' ')[0].ToLowerInvariant();
+            if (command.Length == 0 || Array.IndexOf(AllowedCommands, command) >= 0)
+            {
+                return;
+            }
+            if (__result != null && __result.StartsWith("[Error]"))
+            {
+                return;
+            }
+            RogueRun.CheatsUsed = true;
+            if (AccessTools.Field(typeof(ConsoleDaemon), "_state").GetValue(__instance) is State state)
+            {
+                RunPersistence.SaveFloorEntry(state);
+            }
+            __result += Environment.NewLine + "<color=red>The Dive: console command detected - this run will not be recorded.</color>";
+            UnityEngine.Debug.Log($"[RoguelikeMode] Command '{command}' used mid-run - score recording disabled for this run.");
+        }
+    }
+
+    [HarmonyPatch(typeof(ItemDropSystem), "PrepareItemDropRecords")]
+    public static class CaseLootFilterPatch
+    {
+        public static void Prefix(List<ItemRecord> items)
+        {
+            if (!RogueRun.Active || RogueRun.Tier == RogueTier.Easy || items == null)
+            {
+                return;
+            }
+            items.RemoveAll(record => Array.IndexOf(RogueConfig.BlockedContainerIds, record.Id) >= 0);
         }
     }
 

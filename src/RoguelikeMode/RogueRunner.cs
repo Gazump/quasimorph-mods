@@ -60,6 +60,10 @@ namespace RoguelikeMode
             RogueRun.DeepestFloor = save.DeepestFloor;
             RogueRun.PlayerKills = save.PlayerKills;
             RogueRun.DamageTaken = save.DamageTaken;
+            RogueRun.TradeCredit = save.TradeCredit;
+            RogueRun.CheatsUsed = save.CheatsUsed;
+            RogueRun.TerminalPosition = save.TerminalPosition ?? string.Empty;
+            RogueRun.TerminalUsed = save.TerminalUsed;
             CaptureModEnvironment();
             StartCoroutine(ProcessStart(save));
         }
@@ -102,7 +106,37 @@ namespace RoguelikeMode
             SingletonMonoBehaviour<ItemFactory>.Instance.SetWeaponDurabilityMult(1f);
             SingletonMonoBehaviour<ItemFactory>.Instance.SetArmorDurabilityMult(1f);
             _state.Resolve(new SavedGameMetadata(-1));
-            _state.Get<ComponentsLayout>().CreateGlobalComponents();
+            SimpleJSON.JSONNode session = resume != null ? ExactState.Load() : null;
+            if (session != null)
+            {
+                _state.Get<ComponentsLayout>().CreateGlobalComponents(initContent: false);
+                _state.Get<ComponentsLayout>().DeserializeGlobalComponents(session["Global"]);
+                _state.Get<Difficulty>().Preset = BuildRoguePreset();
+                RaidMetadata restoredRaid = _state.Get<RaidMetadata>();
+                restoredRaid.World = _state.Get<Missions>().Get(restoredRaid)?.WorldStructure;
+                if (restoredRaid.World != null)
+                {
+                    RogueRun.Active = true;
+                    RogueRun.ResumingExactState = true;
+                    string exactLocation = session["LocationUniqueId"].Value;
+                    ExactState.Delete();
+                    Debug.Log($"[RoguelikeMode] Resuming exact state on {exactLocation}.");
+                    yield return LaunchFloorFromSave(session["Dungeon"], new InputMapData
+                    {
+                        locationId = exactLocation,
+                        transitionType = TransitionType.None
+                    });
+                    yield break;
+                }
+                Debug.LogError("[RoguelikeMode] Exact-state session had no mission world, rebuilding from floor entry.");
+                ExactState.Delete();
+                _state.Get<ComponentsLayout>().RemoveGlobalComponents();
+                _state.Get<ComponentsLayout>().CreateGlobalComponents();
+            }
+            else
+            {
+                _state.Get<ComponentsLayout>().CreateGlobalComponents();
+            }
             Difficulty difficulty = _state.Get<Difficulty>();
             difficulty.Preset = BuildRoguePreset();
             if (resume == null)
@@ -116,7 +150,7 @@ namespace RoguelikeMode
             Mission mission = MissionBuilder.BuildDailyMission(_state);
             if (mission == null)
             {
-                yield return AbortToMenu("Roguelike mode failed to build the daily mission. Check Player.log.");
+                yield return AbortToMenu("Roguelike mode failed to build the daily mission. Check Player.log.", keepSave: false);
                 yield break;
             }
             AuthorRaidMetadata(mission);
@@ -304,7 +338,22 @@ namespace RoguelikeMode
         {
             RogueRun.ResetAttempts(inputMapData.locationId);
             DungeonCreationResult result;
-            _dungeon = _state.Get<GameModeFactory>().CreateDungeon(inputMapData, out result);
+            System.Exception failure;
+            _dungeon = TryCreateDungeon(inputMapData, out result, out failure);
+            if (failure != null)
+            {
+                Debug.LogError($"[RoguelikeMode] Floor generation threw for {inputMapData.locationId}:\n{failure}");
+                if (_dungeon != null)
+                {
+                    KillDungeon();
+                }
+                string culprit = FindForeignMod(failure);
+                string message = culprit != null
+                    ? $"Floor generation crashed inside another mod ({culprit}).\nRun suspended - disable that mod, restart the game and RESUME."
+                    : "Floor generation crashed.\nRun suspended - check Player.log, then RESUME.";
+                yield return AbortToMenu(message, keepSave: true);
+                yield break;
+            }
             if (result != DungeonCreationResult.Success)
             {
                 Debug.LogError($"[RoguelikeMode] Dungeon creation failed ({result}) for {inputMapData.locationId}.");
@@ -312,11 +361,90 @@ namespace RoguelikeMode
                 {
                     KillDungeon();
                 }
-                yield return AbortToMenu("Roguelike mode failed to generate the floor. Try again tomorrow or report this seed.");
+                yield return AbortToMenu("Roguelike mode failed to generate the floor. Try again tomorrow or report this seed.", keepSave: false);
                 yield break;
             }
             _dungeon.OnFinished += DungeonFinished;
             StartCoroutine(_dungeon.Run());
+        }
+
+        private IEnumerator LaunchFloorFromSave(SimpleJSON.JSONNode dungeonNode, InputMapData inputMapData)
+        {
+            RogueRun.ResetAttempts(inputMapData.locationId);
+            System.Exception failure = null;
+            try
+            {
+                _state.Get<GameModeFactory>().CreateDungeon(dungeonNode, inputMapData);
+                _dungeon = _state.Get<DungeonBuilder>().Result;
+            }
+            catch (System.Exception ex)
+            {
+                failure = ex;
+                _dungeon = _state.Get<DungeonBuilder>()?.Result;
+            }
+            if (failure != null || _dungeon == null)
+            {
+                Debug.LogError($"[RoguelikeMode] Exact-state restore failed for {inputMapData.locationId}: {failure}");
+                if (_dungeon != null)
+                {
+                    KillDungeon();
+                }
+                RogueRun.ResumingExactState = false;
+                yield return AbortToMenu("Suspended run could not be restored exactly.\nRESUME will restart the floor from its entrance.", keepSave: true);
+                yield break;
+            }
+            _dungeon.OnFinished += DungeonFinished;
+            StartCoroutine(_dungeon.Run());
+        }
+
+        private DungeonGameMode TryCreateDungeon(InputMapData inputMapData, out DungeonCreationResult result, out System.Exception failure)
+        {
+            try
+            {
+                failure = null;
+                return _state.Get<GameModeFactory>().CreateDungeon(inputMapData, out result);
+            }
+            catch (System.Exception ex)
+            {
+                failure = ex;
+                result = DungeonCreationResult.GeometryFail;
+                return _state.Get<DungeonBuilder>()?.Result;
+            }
+        }
+
+        private string FindForeignMod(System.Exception failure)
+        {
+            string trace = failure.ToString();
+            UserMods userMods = _state.Get<UserMods>();
+            if (userMods != null)
+            {
+                foreach (UserMod mod in userMods.Values)
+                {
+                    if (!string.IsNullOrEmpty(mod.UniqueModName) && mod.UniqueModName != "RoguelikeMode" && trace.Contains(mod.UniqueModName))
+                    {
+                        return mod.UniqueModName;
+                    }
+                }
+            }
+            foreach (string line in trace.Split('\n'))
+            {
+                string frame = line.Trim();
+                if (!frame.StartsWith("at ") || frame.StartsWith("at ("))
+                {
+                    continue;
+                }
+                int dot = frame.IndexOf('.', 3);
+                if (dot <= 3)
+                {
+                    continue;
+                }
+                string root = frame.Substring(3, dot - 3);
+                if (root != "MGSC" && root != "RoguelikeMode" && root != "UnityEngine" && root != "System" && root != "HarmonyLib" && root != "MonoMod")
+                {
+                    return root;
+                }
+            }
+            return null;
         }
 
         public void JumpToFloor(int floor)
@@ -339,6 +467,9 @@ namespace RoguelikeMode
                     break;
                 case GameFinishedReason.RegenerateDungeon:
                     StartCoroutine(ProcessRegenerate());
+                    break;
+                case GameFinishedReason.ExitToMainMenu:
+                    StartCoroutine(ProcessSuspendRun());
                     break;
                 default:
                     StartCoroutine(ProcessEndRun(data));
@@ -378,7 +509,15 @@ namespace RoguelikeMode
             bool victory = data.Reason == GameFinishedReason.MissionFinished;
             int turns = _state.Get<RaidMetadata>().TurnNumber;
             Mercenary mercenary = _state.Get<Mercenaries>().MercenaryInRaid;
-            RogueScoreEntry entry = ScoreSystem.Record(mercenary?.ProfileId ?? "unknown", mercenary?.MercClassId ?? "unknown", turns, victory);
+            RogueScoreEntry entry = null;
+            if (!RogueRun.CheatsUsed)
+            {
+                entry = ScoreSystem.Record(mercenary?.ProfileId ?? "unknown", mercenary?.MercClassId ?? "unknown", turns, victory);
+            }
+            else
+            {
+                Debug.Log("[RoguelikeMode] Cheats were used this run - score not recorded.");
+            }
             string summary = BuildSummary(victory, data.Reason, turns, RogueRun.PlayerKills, entry);
             RogueRun.LastSummary = summary;
             yield return UI.Fade.ProcessFadeIn();
@@ -405,14 +544,45 @@ namespace RoguelikeMode
             string modsLine = (RogueRun.ActiveMods.Count > 0)
                 ? $"\nOther mods active ({RogueRun.ActiveMods.Count}) - future ladder runs need RoguelikeMode only."
                 : string.Empty;
-            int best = ScoreSystem.BestScore();
-            return $"{headline}\n\n{runLabel} ({RogueRun.Tier})\nDeepest floor: {RogueRun.DeepestFloor} / {RogueConfig.FloorCount}\nKills: {kills}\nDamage taken: {RogueRun.DamageTaken}\nTurns: {turns}\n\nSCORE: {entry.Score}{(entry.Score >= best ? "  (NEW BEST)" : $"  (best: {best})")}{modsLine}";
+            string scoreLine;
+            if (entry == null)
+            {
+                scoreLine = "SCORE: not recorded - cheats were used this run.";
+            }
+            else
+            {
+                int best = ScoreSystem.BestScore();
+                scoreLine = $"SCORE: {entry.Score}{(entry.Score >= best ? "  (NEW BEST)" : $"  (best: {best})")}";
+            }
+            return $"{headline}\n\n{runLabel} ({RogueRun.Tier})\nDeepest floor: {RogueRun.DeepestFloor} / {RogueConfig.FloorCount}\nKills: {kills}\nDamage taken: {RogueRun.DamageTaken}\nTurns: {turns}\n\n{scoreLine}{modsLine}";
         }
 
-        private IEnumerator AbortToMenu(string message)
+        private IEnumerator ProcessSuspendRun()
         {
             RogueRun.Active = false;
-            RunPersistence.Delete();
+            RunPersistence.SaveFloorEntry(_state);
+            bool exact = ExactState.Save(_state);
+            RogueRun.LastSummary = $"Run suspended on floor {RogueRun.CurrentFloor} ({(RogueRun.Daily ? ("daily " + RogueRun.DayLabel) : "random")}, {RogueRun.Tier}).\n{(exact ? "RESUME DIVE continues exactly where you left off." : "RESUME DIVE restarts the floor from its entrance.")}{(RogueRun.Daily ? "\nDaily saves expire when the daily resets." : string.Empty)}";
+            yield return UI.Fade.ProcessFadeIn();
+            KillDungeon();
+            _state.Get<MonsterTransfer>()?.Clear();
+            Mercenaries mercenaries = _state.Get<Mercenaries>();
+            mercenaries.MutatedQuasimorph = null;
+            mercenaries.ChangedMercenary = null;
+            yield return new WaitForEndOfFrame();
+            _state.Get<GameModeStateMachine>().RunMainMenu();
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
+            MenuInjection.OpenDive();
+        }
+
+        private IEnumerator AbortToMenu(string message, bool keepSave)
+        {
+            RogueRun.Active = false;
+            if (!keepSave)
+            {
+                RunPersistence.Delete();
+            }
             RogueRun.LastSummary = message;
             yield return new WaitForEndOfFrame();
             _state.Get<GameModeStateMachine>().RunMainMenu();

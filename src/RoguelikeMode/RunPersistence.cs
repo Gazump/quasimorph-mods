@@ -38,6 +38,18 @@ namespace RoguelikeMode
         public int TurnNumber { get; set; }
 
         [Save]
+        public int TradeCredit { get; set; }
+
+        [Save]
+        public bool CheatsUsed { get; set; }
+
+        [Save]
+        public string TerminalPosition { get; set; }
+
+        [Save]
+        public bool TerminalUsed { get; set; }
+
+        [Save]
         public Mercenary Merc { get; set; }
     }
 
@@ -47,8 +59,7 @@ namespace RoguelikeMode
 
         public static bool HasSave()
         {
-            FileManager fileManager = SingletonMonoBehaviour<FileManager>.Instance;
-            return fileManager != null && fileManager.IsFileExist(FileName);
+            return LoadRun() != null;
         }
 
         public static void SaveFloorEntry(State state)
@@ -72,6 +83,10 @@ namespace RoguelikeMode
                     PlayerKills = RogueRun.PlayerKills,
                     DamageTaken = RogueRun.DamageTaken,
                     TurnNumber = state.Get<RaidMetadata>()?.TurnNumber ?? 0,
+                    TradeCredit = RogueRun.TradeCredit,
+                    CheatsUsed = RogueRun.CheatsUsed,
+                    TerminalPosition = RogueRun.TerminalPosition,
+                    TerminalUsed = RogueRun.TerminalUsed,
                     Merc = mercenary
                 };
                 SingletonMonoBehaviour<FileManager>.Instance.SaveFile(FileName, SaveToJSON.CreateNode(save).ToString());
@@ -102,6 +117,12 @@ namespace RoguelikeMode
                 {
                     return null;
                 }
+                if (save.Daily && save.DayLabel != RogueRun.TodayLabel())
+                {
+                    Debug.Log($"[RoguelikeMode] Suspended daily run from {save.DayLabel} is stale, removing.");
+                    Delete();
+                    return null;
+                }
                 return save;
             }
             catch (Exception ex)
@@ -119,6 +140,7 @@ namespace RoguelikeMode
             {
                 fileManager.RemoveFile(FileName);
             }
+            ExactState.Delete();
         }
     }
 }

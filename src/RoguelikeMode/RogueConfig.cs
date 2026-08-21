@@ -22,6 +22,11 @@ namespace RoguelikeMode
         public const string BackCaptionKey = "ui.rogue.back";
         public const string ResumeCaptionKey = "ui.rogue.resume";
         public const string DiveButtonCaptionKey = "ui.dive.menubutton";
+        public const string TerminalCaptionKey = "ui.dive.terminal";
+        public const string TradeInCaptionKey = "ui.dive.tradein";
+        public const float TradeInRate = 0.85f;
+        public static readonly string[] BlockedContainerIds = { "weapon_container", "armor_container", "security_clothing_container" };
+        public static readonly string[] TerminalContainerIds = { "data_container", "matrix_box", "common_locker" };
         public const int LearnClassContextBind = 5100;
         public const string HarmonyId = "quasimorph.roguelikemode";
         public const float TopMonsterPointsMult = 1.35f;

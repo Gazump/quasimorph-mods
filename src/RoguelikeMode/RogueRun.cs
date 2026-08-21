@@ -17,16 +17,26 @@ namespace RoguelikeMode
         public static int DamageTaken;
         public static string CurrentLocationId = string.Empty;
         public static string LastSummary = string.Empty;
+        public static int TradeCredit;
+        public static bool CheatsUsed;
+        public static bool ResumingExactState;
+        public static string TerminalPosition = string.Empty;
+        public static bool TerminalUsed;
         public static List<string> ActiveMods = new List<string>();
 
         private static int _generateAttempt;
+
+        public static string TodayLabel()
+        {
+            return DateTime.UtcNow.ToString("yyyy-MM-dd");
+        }
 
         public static void PrepareDay(bool daily)
         {
             Daily = daily;
             if (daily)
             {
-                DayLabel = DateTime.UtcNow.ToString("yyyy-MM-dd");
+                DayLabel = TodayLabel();
                 DaySeed = Fnv("quasimorph-rogue-" + DayLabel);
             }
             else
@@ -45,6 +55,11 @@ namespace RoguelikeMode
             DeepestFloor = 0;
             PlayerKills = 0;
             DamageTaken = 0;
+            TradeCredit = 0;
+            CheatsUsed = false;
+            ResumingExactState = false;
+            TerminalPosition = string.Empty;
+            TerminalUsed = false;
             CurrentLocationId = string.Empty;
             _generateAttempt = 0;
             Active = false;

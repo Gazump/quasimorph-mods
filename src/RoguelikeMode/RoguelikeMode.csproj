@@ -5,7 +5,7 @@
     <RootNamespace>RoguelikeMode</RootNamespace>
     <!-- Must match UniqueModName in modmanifest.json. Letters, digits and underscore only. -->
     <UniqueModName>RoguelikeMode</UniqueModName>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +16,10 @@
   <ItemGroup>
     <Reference Include="UnityEngine.UnityWebRequestModule">
       <HintPath>$(QuasimorphManagedDir)\UnityEngine.UnityWebRequestModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.Universal.Runtime">
+      <HintPath>$(QuasimorphManagedDir)\Unity.RenderPipelines.Universal.Runtime.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.ImageConversionModule">
