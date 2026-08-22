@@ -1,7 +1,7 @@
 # Quasimorph Mods
 
 C# mods for [Quasimorph](https://store.steampowered.com/app/2059170/Quasimorph/) (Steam AppID
-`2059170`, Unity 2022.3, built against game version 1.0.1).
+`2059170`, Unity 2022.3, built against game version 1.0.3).
 
 A Quasimorph mod is a plain .NET class library compiled against the game's `Assembly-CSharp.dll`.
 The game loads it by reflection and calls any `public static` method tagged `[Hook(...)]`. No Unity
@@ -13,6 +13,7 @@ Editor is involved, and the .NET SDK plus any editor is enough.
 |---|---|
 | [CombatPsychology](src/CombatPsychology) | Combat stress, breakdowns, fortitude, battle highs and treatments (sedatives, alcohol, smoking). |
 | [LootTracker](src/LootTracker) | Marks loot you don't already own, so duplicates are obvious at a glance. On the Workshop as *Have I got this?* |
+| [RoguelikeMode](src/RoguelikeMode) | A pure roguelike mode: no ship or campaign, ten floors down to the Golden Keycard, daily seeded runs, barter terminals and permadeath. On the Workshop as *The Dive*. |
 | [SampleMod](src/SampleMod) | Minimal template. Copy it to start a new mod. |
 
 ## Building
