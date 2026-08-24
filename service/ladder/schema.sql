@@ -15,6 +15,8 @@ CREATE TABLE IF NOT EXISTS runs (
   class        TEXT,
   mod_version  TEXT    NOT NULL,
   game_version TEXT,
+  modded       INTEGER NOT NULL DEFAULT 0,
+  mods         TEXT,
   created_at   INTEGER NOT NULL,
   UNIQUE (player_key, day, tier)
 );

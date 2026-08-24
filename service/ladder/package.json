@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "schema:local": "wrangler d1 execute dive-ladder --local --file=./schema.sql",
     "schema:remote": "wrangler d1 execute dive-ladder --remote --file=./schema.sql",
-    "test": "node test/ladder.test.mjs"
+    "test": "node test/ladder.test.mjs",
+    "pretest": "wrangler d1 execute dive-ladder --local --command \"DELETE FROM runs; DELETE FROM submit_counts; DELETE FROM nonces;\""
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250109.0",

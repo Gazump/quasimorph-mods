@@ -558,7 +558,7 @@ namespace RoguelikeMode
                     : "Run abandoned.";
             string runLabel = RogueRun.Daily ? ("Daily run: " + RogueRun.DayLabel) : "Random run";
             string modsLine = (RogueRun.ActiveMods.Count > 0)
-                ? $"\nOther mods active ({RogueRun.ActiveMods.Count}) - ladder runs need RoguelikeMode only."
+                ? $"\nOther mods active ({RogueRun.ActiveMods.Count}) - marked with * on the ladder."
                 : string.Empty;
             string scoreLine;
             if (entry == null)

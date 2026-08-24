@@ -127,8 +127,8 @@ function validate(body: Submission, env: Env): string | null {
   if (body.day !== utcDay(0) && body.day !== utcDay(-1)) return "day is not a current daily bracket";
 
   if (typeof body.steamId !== "string" || !/^\d{5,20}$/.test(body.steamId)) return "bad player id";
-  if (!Array.isArray(body.mods)) return "bad mods list";
-  if (body.mods.length > 0) return "ranked runs must have no other mods active";
+  if (!Array.isArray(body.mods) || body.mods.length > 64) return "bad mods list";
+  if (body.mods.some((m) => typeof m !== "string" || m.length === 0 || m.length > 64)) return "bad mods list";
 
   if (!Number.isInteger(body.floor) || body.floor < 1 || body.floor > FLOOR_COUNT) return "bad floor";
   if (!Number.isInteger(body.kills) || body.kills < 0 || body.kills > 5000) return "bad kills";
@@ -171,6 +171,8 @@ async function handleSubmit(request: Request, env: Env): Promise<Response> {
   const tier = body.tier as Tier;
   const key = await playerKey(env.ID_SALT, body.steamId);
   const name = sanitizeName(body.name);
+  const modded = body.mods.length > 0;
+  const modsList = modded ? body.mods.map((m) => sanitizeName(m)).join(",").slice(0, 1024) : null;
   const score = computeScore(body.floor, body.kills, body.victory, body.damage, tier);
 
   if (typeof body.score !== "number" || Math.abs(score - body.score) > 1) {
@@ -202,13 +204,14 @@ async function handleSubmit(request: Request, env: Env): Promise<Response> {
 
   await env.DB.prepare(
     `INSERT INTO runs (player_key, name, day, tier, score, floor, kills, turns, damage, victory,
-                       duration_sec, profile, class, mod_version, game_version, created_at)
-     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16)
+                       duration_sec, profile, class, mod_version, game_version, modded, mods, created_at)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18)
      ON CONFLICT (player_key, day, tier) DO UPDATE SET
        name = excluded.name, score = excluded.score, floor = excluded.floor, kills = excluded.kills,
        turns = excluded.turns, damage = excluded.damage, victory = excluded.victory,
        duration_sec = excluded.duration_sec, profile = excluded.profile, class = excluded.class,
        mod_version = excluded.mod_version, game_version = excluded.game_version,
+       modded = excluded.modded, mods = excluded.mods,
        created_at = excluded.created_at
      WHERE excluded.score > runs.score`,
   )
@@ -228,6 +231,8 @@ async function handleSubmit(request: Request, env: Env): Promise<Response> {
       body.class ?? null,
       body.mod,
       body.game ?? null,
+      modded ? 1 : 0,
+      modsList,
       now,
     )
     .run();
@@ -278,7 +283,7 @@ async function handleBoard(url: URL, env: Env): Promise<Response> {
   const limit = Math.min(Math.max(Number.isFinite(requested) ? requested : 25, 1), 100);
 
   const { results } = await env.DB.prepare(
-    `SELECT name, score, floor, kills, turns, damage, victory, duration_sec, class
+    `SELECT name, score, floor, kills, turns, damage, victory, duration_sec, class, modded
      FROM runs WHERE day = ? AND tier = ?
      ORDER BY score DESC, created_at ASC
      LIMIT ?`,
@@ -294,6 +299,7 @@ async function handleBoard(url: URL, env: Env): Promise<Response> {
       victory: number;
       duration_sec: number;
       class: string | null;
+      modded: number;
     }>();
 
   const counts = await env.DB.prepare("SELECT COUNT(*) AS total FROM runs WHERE day = ? AND tier = ?")
@@ -315,6 +321,7 @@ async function handleBoard(url: URL, env: Env): Promise<Response> {
       victory: row.victory === 1,
       durationSec: row.duration_sec,
       class: row.class,
+      modded: row.modded === 1,
     })),
   });
 }

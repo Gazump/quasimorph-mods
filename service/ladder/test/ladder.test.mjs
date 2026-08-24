@@ -78,10 +78,21 @@ run = baseRun({ durationSec: 5 }); run.score = scoreOf(run);
 r = await submit(run);
 check('implausibly fast run rejected', r.status === 422, r.json);
 
-// 7. other mods active
-run = baseRun({ mods: ['SomeOtherMod'] }); run.score = scoreOf(run);
+// 7. other mods active: accepted, marked
+run = baseRun({ steamId: '76561190000000005', name: 'ModdedDiver', mods: ['SomeOtherMod', 'AnotherMod'] });
+run.score = scoreOf(run);
 r = await submit(run);
-check('modded run rejected', r.status === 422 && /other mods/.test(r.json.reason), r.json);
+check('modded run accepted', r.status === 200 && r.json.accepted === true, r.json);
+const moddedBoard = await (await fetch(`${BASE}/v1/board?day=${today}&tier=normal&limit=20`)).json();
+const moddedEntry = moddedBoard.entries.find((e) => e.name === 'ModdedDiver');
+check('modded run marked on board', moddedEntry && moddedEntry.modded === true, moddedEntry);
+const cleanEntry = moddedBoard.entries.find((e) => e.name === 'Gazump');
+check('clean run not marked', cleanEntry && cleanEntry.modded === false, cleanEntry);
+
+// 7b. oversized mods list rejected
+run = baseRun({ mods: Array.from({ length: 65 }, (_, i) => 'Mod' + i) }); run.score = scoreOf(run);
+r = await submit(run);
+check('oversized mods list rejected', r.status === 422, r.json);
 
 // 8. random mode
 run = baseRun({ mode: 'random' }); run.score = scoreOf(run);
@@ -102,7 +113,7 @@ check('weaker run accepted but not stored', r.json.accepted && r.json.personalBe
 run = baseRun({ steamId: '76561190000000002', name: 'Rival', kills: 10, floor: 5, victory: false });
 run.score = scoreOf(run);
 r = await submit(run);
-check('second player ranked 2nd', r.json.rank === 2, r.json);
+check('weaker player ranked below both full runs', r.json.rank === 3, r.json);
 
 // 12. tier brackets are separate
 run = baseRun({ steamId: '76561190000000003', name: 'HardDiver', tier: 'hard', kills: 5, floor: 4, victory: false });
@@ -117,7 +128,7 @@ await submit(run);
 
 // 14. board read
 const board = await (await fetch(`${BASE}/v1/board?day=${today}&tier=normal&limit=10`)).json();
-check('board returns normal bracket', board.entries.length === 3, board);
+check('board returns normal bracket', board.entries.length === 4, board);
 check('board ordered by score desc', board.entries[0].score >= board.entries[1].score, board.entries);
 const hax = board.entries.find((e) => e.name.includes('Hax'));
 check('rich-text markup stripped from name', hax && !hax.name.includes('<'), hax);

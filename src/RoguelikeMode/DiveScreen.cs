@@ -523,14 +523,21 @@ namespace RoguelikeMode
             }
             else if (boardMatches && board.Entries.Count > 0)
             {
+                bool anyModded = false;
                 for (int i = 0; i < board.Entries.Count; i++)
                 {
                     LadderEntry entry = board.Entries[i];
+                    anyModded |= entry.Modded;
                     text += entry.Rank + ". " + entry.Score + " pts - floor " + entry.Floor
                         + ", " + entry.Kills + " kills - " + entry.Name
+                        + (entry.Modded ? "*" : string.Empty)
                         + (entry.Victory ? " - VICTORY" : string.Empty) + "\n";
                 }
                 text += "\n" + board.Total + (board.Total == 1 ? " diver ranked today." : " divers ranked today.");
+                if (anyModded)
+                {
+                    text += "\n* other mods were active";
+                }
             }
             else if (boardMatches)
             {
@@ -561,7 +568,7 @@ namespace RoguelikeMode
             }
             if (RogueRun.ActiveMods.Count > 0)
             {
-                text += "\n\nOther mods are active - runs will not be ranked.";
+                text += "\n\nOther mods are active - your dives will carry a * on the board.";
             }
             if (!string.IsNullOrEmpty(LadderClient.LastSubmitResult))
             {

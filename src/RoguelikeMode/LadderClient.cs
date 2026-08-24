@@ -26,6 +26,7 @@ namespace RoguelikeMode
         public int Floor;
         public int Kills;
         public bool Victory;
+        public bool Modded;
     }
 
     public class LadderBoard
@@ -70,6 +71,9 @@ namespace RoguelikeMode
 
         [Save]
         public string ClassId { get; set; }
+
+        [Save]
+        public List<string> Mods { get; set; } = new List<string>();
     }
 
     public static class LadderClient
@@ -155,7 +159,8 @@ namespace RoguelikeMode
                         Score = node["score"].AsInt,
                         Floor = node["floor"].AsInt,
                         Kills = node["kills"].AsInt,
-                        Victory = node["victory"].AsBool
+                        Victory = node["victory"].AsBool,
+                        Modded = node["modded"].AsBool
                     });
                 }
             }
@@ -189,11 +194,6 @@ namespace RoguelikeMode
                 reason = "only daily dives are ranked";
                 return false;
             }
-            if (RogueRun.ActiveMods.Count > 0)
-            {
-                reason = "other mods were active";
-                return false;
-            }
             if (RogueRun.CheatsUsed)
             {
                 reason = "cheats were used";
@@ -223,7 +223,8 @@ namespace RoguelikeMode
                 Score = entry.Score,
                 DurationSec = durationSec,
                 Profile = entry.ProfileId,
-                ClassId = entry.ClassId
+                ClassId = entry.ClassId,
+                Mods = new List<string>(RogueRun.ActiveMods)
             };
             if (pending.Floor < 1)
             {
@@ -340,7 +341,15 @@ namespace RoguelikeMode
             payload["victory"] = pending.Victory;
             payload["score"] = pending.Score;
             payload["durationSec"] = pending.DurationSec;
-            payload["mods"] = new JSONArray();
+            JSONArray mods = new JSONArray();
+            if (pending.Mods != null)
+            {
+                foreach (string mod in pending.Mods)
+                {
+                    mods.Add(mod);
+                }
+            }
+            payload["mods"] = mods;
             payload["profile"] = pending.Profile ?? string.Empty;
             payload["class"] = pending.ClassId ?? string.Empty;
             payload["nonce"] = Guid.NewGuid().ToString("N");
