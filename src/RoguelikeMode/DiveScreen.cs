@@ -44,6 +44,11 @@ namespace RoguelikeMode
         private static CommonButton _sourceButton;
         private static Transform _operatorSection;
         private static TextMeshProUGUI _logText;
+        private static TextMeshProUGUI _ladderText;
+        private static TextMeshProUGUI _rightHeader;
+        private static CommonButton _ladderToggle;
+        private static int _rightTab;
+        private static string _fetchedKey = string.Empty;
 
         private static bool _daily = true;
         private static RogueTier _tier = RogueTier.Normal;
@@ -52,6 +57,7 @@ namespace RoguelikeMode
         private static readonly List<(CommonButton button, bool daily)> _modeButtons = new List<(CommonButton, bool)>();
         private static readonly List<(CommonButton button, RogueTier tier)> _tierButtons = new List<(CommonButton, RogueTier)>();
         private static readonly List<CommonButton> _operatorButtons = new List<CommonButton>();
+        private static readonly List<(CommonButton button, int tab)> _tabButtons = new List<(CommonButton, int)>();
 
         public static void Open(State state, CommonButton sourceButton)
         {
@@ -68,11 +74,15 @@ namespace RoguelikeMode
             _daily = true;
             _tier = RogueTier.Normal;
             _candidate = 0;
+            _rightTab = 0;
+            _fetchedKey = string.Empty;
             RogueRun.PrepareDay(daily: true);
+            RogueRunner.CaptureModEnvironment(_state);
             Build();
             RefreshOperators();
             RefreshSelections();
-            RefreshLog();
+            RefreshRightPanel();
+            LadderClient.FlushPending();
         }
 
         public static void Close()
@@ -85,6 +95,11 @@ namespace RoguelikeMode
             _modeButtons.Clear();
             _tierButtons.Clear();
             _operatorButtons.Clear();
+            _tabButtons.Clear();
+            _logText = null;
+            _ladderText = null;
+            _rightHeader = null;
+            _ladderToggle = null;
         }
 
         private static void Build()
@@ -165,18 +180,16 @@ namespace RoguelikeMode
             AddRowButton(leftPanel, "ui.dive.close", CloseClicked);
             LocalizationInjector.Set("ui.dive.close", "< CLOSE");
 
-            TextMeshProUGUI logHeader = AddSectionHeader(rightPanel, "ui.dive.logheader", "DIVE LOG");
-            GameObject logObject = CloneLabel(rightPanel);
-            _logText = logObject.GetComponent<TextMeshProUGUI>();
-            LayoutElement logElement = logObject.AddComponent<LayoutElement>();
-            logElement.flexibleHeight = 1f;
-            _logText.enableAutoSizing = false;
-            _logText.enableWordWrapping = true;
-            _logText.overflowMode = TextOverflowModes.Truncate;
-            _logText.alignment = TextAlignmentOptions.TopLeft;
-            _logText.fontSize = logHeader.fontSize * 0.9f;
-            _logText.lineSpacing = 8f;
-            UnityEngine.Object.Destroy(logObject.GetComponent<LocalizableLabel>());
+            Transform tabRow = AddTabRow(rightPanel);
+            _tabButtons.Add((AddRowButton(tabRow, "ui.dive.tablog", () => SelectTab(0)), 0));
+            _tabButtons.Add((AddRowButton(tabRow, "ui.dive.tabladder", () => SelectTab(1)), 1));
+
+            _rightHeader = AddSectionHeader(rightPanel, "ui.dive.logheader", "DIVE LOG");
+            _logText = AddPanelText(rightPanel, _rightHeader.fontSize);
+            _ladderText = AddPanelText(rightPanel, _rightHeader.fontSize);
+            _ladderToggle = AddRowButton(rightPanel, "ui.dive.laddertoggle", ToggleLadder);
+
+            _root.AddComponent<DiveTicker>();
         }
 
         private static RectTransform AddPanel(float xMin, float yMin, float xMax, float yMax)
@@ -211,6 +224,37 @@ namespace RoguelikeMode
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
             return rect;
+        }
+
+        private static Transform AddTabRow(Transform parent)
+        {
+            GameObject row = new GameObject("DiveTabs", typeof(RectTransform));
+            row.transform.SetParent(parent, worldPositionStays: false);
+            HorizontalLayoutGroup layout = row.AddComponent<HorizontalLayoutGroup>();
+            layout.spacing = 10f;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = true;
+            LayoutElement element = row.AddComponent<LayoutElement>();
+            element.preferredHeight = Mathf.Max(_uiFontSize * 2.2f, 30f);
+            return row.transform;
+        }
+
+        private static TextMeshProUGUI AddPanelText(Transform parent, float headerFontSize)
+        {
+            GameObject holder = CloneLabel(parent);
+            TextMeshProUGUI text = holder.GetComponent<TextMeshProUGUI>();
+            LayoutElement element = holder.AddComponent<LayoutElement>();
+            element.flexibleHeight = 1f;
+            text.enableAutoSizing = false;
+            text.enableWordWrapping = true;
+            text.overflowMode = TextOverflowModes.Truncate;
+            text.alignment = TextAlignmentOptions.TopLeft;
+            text.fontSize = headerFontSize * 0.9f;
+            text.lineSpacing = 8f;
+            UnityEngine.Object.Destroy(holder.GetComponent<LocalizableLabel>());
+            return text;
         }
 
         private static GameObject CloneLabel(Transform parent)
@@ -287,12 +331,39 @@ namespace RoguelikeMode
             LocalizationInjector.Set("ui.dive.day", daily ? ("DAILY: " + RogueRun.DayLabel) : "RANDOM DIVE");
             RefreshOperators();
             RefreshSelections();
+            RefreshRightPanel();
         }
 
         private static void SelectTier(RogueTier tier)
         {
             _tier = tier;
             RefreshSelections();
+            RefreshRightPanel();
+        }
+
+        private static void SelectTab(int tab)
+        {
+            _rightTab = tab;
+            RefreshRightPanel();
+        }
+
+        private static void ToggleLadder()
+        {
+            LadderConfig.SetEnabled(!LadderConfig.Enabled);
+            if (LadderConfig.Enabled)
+            {
+                LadderClient.FlushPending();
+            }
+            RefreshRightPanel();
+        }
+
+        public static void NotifyLadderChanged()
+        {
+            if (_root == null || _rightTab != 1)
+            {
+                return;
+            }
+            RefreshLadderText();
         }
 
         private static void SelectOperator(int index)
@@ -351,6 +422,153 @@ namespace RoguelikeMode
         private static string Caption(string text, bool selected)
         {
             return selected ? ("> " + text) : text;
+        }
+
+        private static void RefreshRightPanel()
+        {
+            bool ladder = _rightTab == 1;
+
+            LocalizationInjector.Set("ui.dive.tablog", Caption("DIVE LOG", !ladder));
+            LocalizationInjector.Set("ui.dive.tabladder", Caption("LADDER", ladder));
+            foreach ((CommonButton button, int tab) in _tabButtons)
+            {
+                button.ChangeLabel(tab == 0 ? "ui.dive.tablog" : "ui.dive.tabladder");
+            }
+
+            LocalizationInjector.Set("ui.dive.logheader", ladder ? "DAILY LADDER" : "DIVE LOG");
+            if (_rightHeader != null)
+            {
+                LocalizableLabel headerLabel = _rightHeader.gameObject.GetComponent<LocalizableLabel>();
+                if (headerLabel != null)
+                {
+                    headerLabel.ChangeLabel("ui.dive.logheader");
+                }
+            }
+
+            if (_logText != null)
+            {
+                _logText.gameObject.SetActive(!ladder);
+            }
+            if (_ladderText != null)
+            {
+                _ladderText.gameObject.SetActive(ladder);
+            }
+            if (_ladderToggle != null)
+            {
+                _ladderToggle.gameObject.SetActive(ladder);
+                LocalizationInjector.Set("ui.dive.laddertoggle",
+                    LadderConfig.Enabled ? "SUBMIT MY DIVES: ON" : "SUBMIT MY DIVES: OFF");
+                _ladderToggle.ChangeLabel("ui.dive.laddertoggle");
+            }
+
+            if (ladder)
+            {
+                EnsureLadderFetched();
+                RefreshLadderText();
+            }
+            else
+            {
+                RefreshLog();
+            }
+        }
+
+        private static string LadderDay()
+        {
+            return _daily ? RogueRun.DayLabel : LadderClient.TodayUtc();
+        }
+
+        private static void EnsureLadderFetched()
+        {
+            if (!LadderConfig.Configured)
+            {
+                return;
+            }
+            string key = LadderDay() + ":" + LadderClient.TierKey(_tier);
+            if (_fetchedKey == key && LadderClient.BoardStatus != LadderStatus.Idle)
+            {
+                return;
+            }
+            _fetchedKey = key;
+            LadderClient.Fetch(LadderDay(), _tier);
+        }
+
+        private static void RefreshLadderText()
+        {
+            if (_ladderText == null)
+            {
+                return;
+            }
+
+            string day = LadderDay();
+            string tierKey = LadderClient.TierKey(_tier);
+            string text = day + "  -  " + _tier.ToString().ToUpperInvariant() + "\n\n";
+
+            if (!LadderConfig.Configured)
+            {
+                text += "No ladder server is configured in this build.\n\nPoint the mod at one from the console:\nrogue_ladder endpoint <url>";
+                _ladderText.text = text;
+                return;
+            }
+
+            LadderBoard board = LadderClient.Board;
+            bool boardMatches = board != null && board.Day == day && board.Tier == tierKey;
+
+            if (LadderClient.BoardStatus == LadderStatus.Loading)
+            {
+                text += "Contacting the ladder...";
+            }
+            else if (LadderClient.BoardStatus == LadderStatus.Failed)
+            {
+                text += "Ladder unreachable.\n" + LadderClient.BoardError;
+            }
+            else if (boardMatches && board.Entries.Count > 0)
+            {
+                for (int i = 0; i < board.Entries.Count; i++)
+                {
+                    LadderEntry entry = board.Entries[i];
+                    text += entry.Rank + ". " + entry.Score + " pts - floor " + entry.Floor
+                        + ", " + entry.Kills + " kills - " + entry.Name
+                        + (entry.Victory ? " - VICTORY" : string.Empty) + "\n";
+                }
+                text += "\n" + board.Total + (board.Total == 1 ? " diver ranked today." : " divers ranked today.");
+            }
+            else if (boardMatches)
+            {
+                text += "Nobody has posted a score in this bracket yet.\nBe the first.";
+            }
+            else
+            {
+                text += "Ladder idle.";
+            }
+
+            text += "\n\n";
+            if (LadderConfig.Enabled)
+            {
+                text += "Submission is ON. Finished daily dives send your Steam name, Steam id and run stats.";
+                if (!SteamIdentity.Available)
+                {
+                    text += "\nSteam is not running, so submissions are paused.";
+                }
+            }
+            else
+            {
+                text += "Submission is OFF. Nothing about you is sent. Turning it on sends your Steam name, Steam id and run stats when a daily dive ends - reading this board sends neither.";
+            }
+
+            if (!_daily)
+            {
+                text += "\n\nRandom dives are never ranked.";
+            }
+            if (RogueRun.ActiveMods.Count > 0)
+            {
+                text += "\n\nOther mods are active - runs will not be ranked.";
+            }
+            if (!string.IsNullOrEmpty(LadderClient.LastSubmitResult))
+            {
+                text += "\n\nLast dive: " + LadderClient.LastSubmitResult;
+            }
+
+            _ladderText.text = text;
         }
 
         private static void RefreshLog()

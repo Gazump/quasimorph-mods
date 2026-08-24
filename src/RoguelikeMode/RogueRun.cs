@@ -23,6 +23,7 @@ namespace RoguelikeMode
         public static string TerminalPosition = string.Empty;
         public static bool TerminalUsed;
         public static List<string> ActiveMods = new List<string>();
+        public static DateTime StartedUtc = DateTime.UtcNow;
 
         private static int _generateAttempt;
 
@@ -51,6 +52,7 @@ namespace RoguelikeMode
         {
             CandidateIndex = candidateIndex;
             Tier = tier;
+            StartedUtc = DateTime.UtcNow;
             CurrentFloor = 0;
             DeepestFloor = 0;
             PlayerKills = 0;
@@ -63,6 +65,20 @@ namespace RoguelikeMode
             CurrentLocationId = string.Empty;
             _generateAttempt = 0;
             Active = false;
+        }
+
+        public static int ElapsedSeconds()
+        {
+            double seconds = (DateTime.UtcNow - StartedUtc).TotalSeconds;
+            if (seconds < 0.0)
+            {
+                return 0;
+            }
+            if (seconds > int.MaxValue)
+            {
+                return int.MaxValue;
+            }
+            return (int)seconds;
         }
 
         public static int SeedFor(string tag)

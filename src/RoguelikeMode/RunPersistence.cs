@@ -50,6 +50,9 @@ namespace RoguelikeMode
         public bool TerminalUsed { get; set; }
 
         [Save]
+        public string StartedUtc { get; set; }
+
+        [Save]
         public Mercenary Merc { get; set; }
     }
 
@@ -87,6 +90,7 @@ namespace RoguelikeMode
                     CheatsUsed = RogueRun.CheatsUsed,
                     TerminalPosition = RogueRun.TerminalPosition,
                     TerminalUsed = RogueRun.TerminalUsed,
+                    StartedUtc = RogueRun.StartedUtc.ToString("O"),
                     Merc = mercenary
                 };
                 SingletonMonoBehaviour<FileManager>.Instance.SaveFile(FileName, SaveToJSON.CreateNode(save).ToString());

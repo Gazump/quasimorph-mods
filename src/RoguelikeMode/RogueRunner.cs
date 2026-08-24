@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using HarmonyLib;
 using MGSC;
@@ -64,14 +66,25 @@ namespace RoguelikeMode
             RogueRun.CheatsUsed = save.CheatsUsed;
             RogueRun.TerminalPosition = save.TerminalPosition ?? string.Empty;
             RogueRun.TerminalUsed = save.TerminalUsed;
+            DateTime startedUtc;
+            if (!string.IsNullOrEmpty(save.StartedUtc)
+                && DateTime.TryParse(save.StartedUtc, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out startedUtc))
+            {
+                RogueRun.StartedUtc = startedUtc;
+            }
             CaptureModEnvironment();
             StartCoroutine(ProcessStart(save));
         }
 
         private void CaptureModEnvironment()
         {
+            CaptureModEnvironment(_state);
+        }
+
+        public static void CaptureModEnvironment(State state)
+        {
             RogueRun.ActiveMods.Clear();
-            UserMods userMods = _state.Get<UserMods>();
+            UserMods userMods = state.Get<UserMods>();
             if (userMods == null)
             {
                 return;
@@ -510,13 +523,16 @@ namespace RoguelikeMode
             int turns = _state.Get<RaidMetadata>().TurnNumber;
             Mercenary mercenary = _state.Get<Mercenaries>().MercenaryInRaid;
             RogueScoreEntry entry = null;
+            LadderClient.LastSubmitResult = string.Empty;
             if (!RogueRun.CheatsUsed)
             {
                 entry = ScoreSystem.Record(mercenary?.ProfileId ?? "unknown", mercenary?.MercClassId ?? "unknown", turns, victory);
+                LadderClient.SubmitRun(entry, RogueRun.ElapsedSeconds());
             }
             else
             {
                 Debug.Log("[RoguelikeMode] Cheats were used this run - score not recorded.");
+                LadderClient.LastSubmitResult = "cheats used - not ranked";
             }
             string summary = BuildSummary(victory, data.Reason, turns, RogueRun.PlayerKills, entry);
             RogueRun.LastSummary = summary;
@@ -542,7 +558,7 @@ namespace RoguelikeMode
                     : "Run abandoned.";
             string runLabel = RogueRun.Daily ? ("Daily run: " + RogueRun.DayLabel) : "Random run";
             string modsLine = (RogueRun.ActiveMods.Count > 0)
-                ? $"\nOther mods active ({RogueRun.ActiveMods.Count}) - future ladder runs need RoguelikeMode only."
+                ? $"\nOther mods active ({RogueRun.ActiveMods.Count}) - ladder runs need RoguelikeMode only."
                 : string.Empty;
             string scoreLine;
             if (entry == null)
