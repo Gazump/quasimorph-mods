@@ -89,6 +89,7 @@ namespace RoguelikeMode
             {
                 item.Storage?.Remove(item);
             }
+            __instance.RefreshItemsList();
             SingletonMonoBehaviour<TooltipFactory>.Instance.ShowSimpleTextTooltip("Class learned: " + Localization.Get("class." + classId + ".name"));
             Debug.Log($"[RoguelikeMode] Learned class {classId} from chip.");
         }

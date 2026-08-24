@@ -129,15 +129,19 @@ namespace RoguelikeMode
                 return;
             }
             LocalizableLabel description = AccessTools.Field(typeof(ElevatorWindow), "_elevatorDesc").GetValue(__instance) as LocalizableLabel;
-            if (description == null || description.Text == null)
+            if (description == null)
             {
                 return;
             }
-            string current = description.Text.text;
-            if (!current.Contains(Warning))
+            string descTag = AccessTools.Field(typeof(ElevatorWindow), "_descTag").GetValue(__instance) as string;
+            string baseText = string.IsNullOrEmpty(descTag) ? string.Empty : Localization.Get(descTag, warnIfMissingTag: false);
+            if (baseText == descTag)
             {
-                description.SetRawText(current + "\n\n" + Warning);
+                baseText = string.Empty;
             }
+            string composed = string.IsNullOrEmpty(baseText) ? Warning : (baseText + "\n\n" + Warning);
+            LocalizationInjector.Set("ui.dive.elevatordesc", composed);
+            description.ChangeLabel("ui.dive.elevatordesc");
         }
     }
 

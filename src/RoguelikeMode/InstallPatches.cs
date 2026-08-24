@@ -79,6 +79,7 @@ namespace RoguelikeMode
                 feedback = "Prosthetic installed: " + itemName;
             }
             ReturnSpill(dungeon, mercenary, spill);
+            screen.RefreshItemsList();
             SingletonMonoBehaviour<TooltipFactory>.Instance.ShowSimpleTextTooltip(feedback);
             Debug.Log("[RoguelikeMode] " + feedback);
         }
