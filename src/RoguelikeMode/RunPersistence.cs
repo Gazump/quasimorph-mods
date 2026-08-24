@@ -123,6 +123,12 @@ namespace RoguelikeMode
                     Delete();
                     return null;
                 }
+                if (RogueRun.FloorOf(save.LocationId) > RogueConfig.FloorCount)
+                {
+                    Debug.Log($"[RoguelikeMode] Suspended run on {save.LocationId} exceeds the current floor count, removing.");
+                    Delete();
+                    return null;
+                }
                 return save;
             }
             catch (Exception ex)

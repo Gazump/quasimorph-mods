@@ -379,7 +379,7 @@ namespace RoguelikeMode
             }
             if (string.IsNullOrEmpty(text))
             {
-                text = "No dives recorded yet.\n\nPick a mode, difficulty and operator, then START DIVE.\n\nReach floor 10, seize the GOLDEN KEYCARD, evacuate alive.";
+                text = $"No dives recorded yet.\n\nPick a mode, difficulty and operator, then START DIVE.\n\nReach floor {RogueConfig.FloorCount}, seize the GOLDEN KEYCARD, evacuate alive.";
             }
             _logText.text = text;
         }

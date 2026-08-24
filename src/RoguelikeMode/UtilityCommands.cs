@@ -81,7 +81,7 @@ namespace RoguelikeMode
 
         public static List<string> FetchAutocompleteOptions(string command, string[] tokens)
         {
-            return new List<string> { "10" };
+            return new List<string> { RogueConfig.FloorCount.ToString() };
         }
 
         public static bool IsAvailable()

@@ -1,4 +1,4 @@
-A pure roguelike mode. No ship or campaign, just ten levels of increasing difficulty as you start with nothing and scavenge your way to the Golden Keycard, your only way out of this pit of hell.
+A pure roguelike mode. No ship or campaign, just five levels of sharply increasing difficulty as you start with nothing and scavenge your way to the Golden Keycard, your only way out of this pit of hell.
 
 [b]EXPERIMENTAL v0.2[/b] - this is under active development and so there may be some bugs. It never touches campaign slots, so it should be safe to use. Always back up saves before using new mods!
 
@@ -19,7 +19,7 @@ Then choose difficulty, which loosely maps to the game's difficulties:
 Then choose one of three randomly generated characters. For a Daily Dive, these are the same for everyone. They roll with random stats [i]and[/i] classes.
 
 [h2]Objective[/h2]
-Find the [b]Golden Keycard[/b] on the bottom level (level 10). This is the only way to win the run and provides a significant bonus to your run score!
+Find the [b]Golden Keycard[/b] on the bottom level (level 5). This is the only way to win the run and provides a significant bonus to your run score!
 
 [h2]Barter Terminal[/h2]
 Every floor has a glowing terminal near the entrance. Load it with anything you don't need, hit [b]TRADE-IN[/b], and it pays out random gear worth 85% of the value, scaled to your current depth. One use per floor, and any leftover value carries to the next terminal as credit. On a Daily Dive the trades are deterministic, so the same offering gets everyone the same result.

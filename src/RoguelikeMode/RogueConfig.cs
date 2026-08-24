@@ -13,7 +13,7 @@ namespace RoguelikeMode
     public static class RogueConfig
     {
         public const string KeycardId = "rogue_golden_keycard";
-        public const int FloorCount = 10;
+        public const int FloorCount = 5;
         public const int MissionDifficultyRating = 100;
         public const string StoryId = "RogueDescent";
         public const string EasyCaptionKey = "ui.rogue.easy";
@@ -37,7 +37,7 @@ namespace RoguelikeMode
 
         public static int TechLevelForFloor(int floor)
         {
-            return Mathf.Clamp(1 + (floor - 1) / 3, 1, Data.Global.MaxTechLevel);
+            return Mathf.Clamp(floor, 1, Data.Global.MaxTechLevel);
         }
     }
 }
