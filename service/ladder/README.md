@@ -20,7 +20,9 @@ What the service does do:
 - **Plausibility bounds.** Floor 1–5, victory only on floor 5, minimum turns and
   wall-clock duration per floor reached, capped kills/damage.
 - **Bracket integrity.** Only `daily` runs are ranked, only for today's or yesterday's
-  UTC bracket, and only when the run reported no other mods active.
+  UTC bracket. Runs made with other mods active are accepted and ranked but flagged
+  `modded` (shown with a * in-game); the mod list is stored per row for moderation.
+  Runs where console cheats were used are never submitted by the client at all.
 - **Replay and flood control.** Every submission carries a nonce and timestamp;
   nonces are single-use for an hour and clocks must be within 15 minutes. Each player
   is capped at `MAX_SUBMITS_PER_DAY` submissions per bracket.
@@ -159,7 +161,7 @@ fake entries.
 
 ```bash
 npx wrangler d1 execute dive-ladder --remote \
-  --command "SELECT id, name, score, floor, day, tier FROM runs ORDER BY score DESC LIMIT 20"
+  --command "SELECT id, name, score, floor, day, tier, mods FROM runs ORDER BY score DESC LIMIT 20"
 ```
 
 ## Cost
