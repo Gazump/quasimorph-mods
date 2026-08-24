@@ -403,6 +403,15 @@ namespace RoguelikeMode
                 {
                     continue;
                 }
+                if (!(primary.ContentDescriptor is ItemContentDescriptor descriptor) || descriptor.Icon == null)
+                {
+                    continue;
+                }
+                string nameKey = "item." + id + ".name";
+                if (Localization.Get(nameKey, warnIfMissingTag: false) == nameKey)
+                {
+                    continue;
+                }
                 bool quest = false;
                 foreach (BasePickupItemRecord record in composite.Records)
                 {
