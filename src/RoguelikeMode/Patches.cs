@@ -117,6 +117,30 @@ namespace RoguelikeMode
         }
     }
 
+    [HarmonyPatch(typeof(ElevatorWindow), "Configure")]
+    public static class ElevatorWarningPatch
+    {
+        private const string Warning = "This elevator descends only. Once you go down, there is no coming back up.";
+
+        public static void Postfix(ElevatorWindow __instance)
+        {
+            if (!RogueRun.Active)
+            {
+                return;
+            }
+            LocalizableLabel description = AccessTools.Field(typeof(ElevatorWindow), "_elevatorDesc").GetValue(__instance) as LocalizableLabel;
+            if (description == null || description.Text == null)
+            {
+                return;
+            }
+            string current = description.Text.text;
+            if (!current.Contains(Warning))
+            {
+                description.SetRawText(current + "\n\n" + Warning);
+            }
+        }
+    }
+
     [HarmonyPatch(typeof(AchievementProgress), "ProcessCreatureKilledByDamage")]
     public static class PlayerKillCounterPatch
     {
