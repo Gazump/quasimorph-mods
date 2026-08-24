@@ -120,7 +120,7 @@ namespace RoguelikeMode
     [HarmonyPatch(typeof(ElevatorWindow), "Configure")]
     public static class ElevatorWarningPatch
     {
-        private const string Warning = "This elevator descends only. Once you go down, there is no coming back up.";
+        private const string Warning = "Dive to the next level. There's no turning back...";
 
         public static void Postfix(ElevatorWindow __instance)
         {
@@ -133,14 +133,7 @@ namespace RoguelikeMode
             {
                 return;
             }
-            string descTag = AccessTools.Field(typeof(ElevatorWindow), "_descTag").GetValue(__instance) as string;
-            string baseText = string.IsNullOrEmpty(descTag) ? string.Empty : Localization.Get(descTag, warnIfMissingTag: false);
-            if (baseText == descTag)
-            {
-                baseText = string.Empty;
-            }
-            string composed = string.IsNullOrEmpty(baseText) ? Warning : (baseText + "\n\n" + Warning);
-            LocalizationInjector.Set("ui.dive.elevatordesc", composed);
+            LocalizationInjector.Set("ui.dive.elevatordesc", Warning);
             description.ChangeLabel("ui.dive.elevatordesc");
         }
     }
