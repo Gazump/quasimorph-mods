@@ -1,6 +1,6 @@
 ﻿A pure roguelike mode. No ship or campaign, just five levels of sharply increasing difficulty as you start with nothing and scavenge your way to the Golden Keycard, your only way out of this pit of hell.
 
-[b]EXPERIMENTAL v0.3[/b] - this is under active development and so there may be some bugs. It never touches campaign slots, so it should be safe to use. Always back up saves before using new mods!
+[b]EXPERIMENTAL v0.4[/b] - this is under active development and so there may be some bugs. It never touches campaign slots, so it should be safe to use. Always back up saves before using new mods!
 
 [h2]The Dive[/h2]
 Find the new game mode button on the main menu. Clicking this takes you to [b]The Dive - Roguelike Mode[/b], where you can choose between:
@@ -39,7 +39,14 @@ The score for a run is determined by a number of factors, not exhaustively:
 Using console commands during a run disables scoring for that run. You can still finish it, but the dive log will never know.
 
 [h2]Dive Log[/h2]
-Runs are kept locally in your dive log. Mods can make runs easier, so mods are counted and recorded for each run. Future ladder runs, which may eventually share a global leaderboard, will restrict mods for official timed runs. This isn't implemented yet! There are no save slots used, but run history is stored in mod-specific [i]roguelike_*.dat[/i] files alongside your save files.
+Runs are kept locally in your dive log. There are no save slots used, but run history is stored in mod-specific [i]roguelike_*.dat[/i] files alongside your save files.
+
+[h2]Online Daily Ladder (NEW)[/h2]
+The Dive screen now has a [b]LADDER[/b] tab showing a global daily leaderboard for each difficulty. Ranked runs are Daily Dives only - the random mode stays offline.
+
+Submitting your runs is [b]opt-in and off by default[/b]. Flip [b]SUBMIT MY DIVES[/b] on the ladder tab (or use the [i]rogue_ladder[/i] console command) to join in. When enabled, a finished daily dive sends your Steam name, Steam ID and run stats to the ladder server; your Steam ID is used once to keep one best score per player per day and is stored only as an anonymous hash, never raw. Reading the board sends nothing about you. Turn it off any time and nothing further is sent.
+
+Other mods are welcome on the ladder - runs made with other mods active simply carry a [b]*[/b] on the board so everyone can see it. Console cheats disable scoring and ladder submission for that run entirely.
 
 [h2]Additional Mechanics/Changes[/h2]
 [list]
@@ -55,4 +62,4 @@ If you like my mods so much that you'd like to buy me a coffee, you can do so at
 [h2]Source[/h2]
 Source code for all my mods can be found on GitHub: [url=https://github.com/Gazump/quasimorph-mods]github.com/Gazump/quasimorph-mods[/url]
 
-[b]Version:[/b] 0.3.0 (Experimental, 22 Aug)
+[b]Version:[/b] 0.4.0 (Experimental, 24 Aug)
