@@ -8,5 +8,5 @@ database_name = "dive-ladder"
 database_id = "PASTE_DATABASE_ID_FROM_WRANGLER_D1_CREATE"
 
 [vars]
-ALLOWED_MOD_VERSIONS = "0.2.0"
+ALLOWED_MOD_VERSIONS = "0.4.0"
 MAX_SUBMITS_PER_DAY = "25"

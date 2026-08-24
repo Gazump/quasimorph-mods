@@ -16,7 +16,7 @@ namespace RoguelikeMode
 
     public static class LadderConfig
     {
-        public const string ModVersion = "0.2.0";
+        public const string ModVersion = "0.4.0";
         public const string DefaultEndpoint = "https://quasimorph-dive-ladder.example.workers.dev";
         public const string SubmitSecret = "REPLACE_BEFORE_RELEASE";
 

@@ -12,10 +12,10 @@ let nonceCounter = 0;
 function baseRun(over = {}) {
   nonceCounter += 1;
   return {
-    v: 1, mod: '0.2.0', game: '1.0.2.573',
+    v: 1, mod: '0.4.0', game: '1.0.2.573',
     day: today, mode: 'daily', tier: 'normal',
     steamId: '76561190000000001', name: 'Gazump',
-    floor: 10, kills: 143, turns: 812, damage: 640,
+    floor: 5, kills: 143, turns: 812, damage: 640,
     victory: true, score: 0, durationSec: 3600,
     mods: [], profile: 'spec_a', class: 'class_a',
     nonce: crypto.randomBytes(8).toString('hex'),
@@ -71,7 +71,7 @@ check('inflated score rejected 422', r.status === 422 && /components/.test(r.jso
 // 5. impossible victory
 run = baseRun({ floor: 3, victory: true }); run.score = scoreOf(run);
 r = await submit(run);
-check('victory below floor 10 rejected', r.status === 422, r.json);
+check('victory above the bottom floor rejected', r.status === 422, r.json);
 
 // 6. too fast
 run = baseRun({ durationSec: 5 }); run.score = scoreOf(run);

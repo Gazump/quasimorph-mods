@@ -162,11 +162,26 @@ namespace RoguelikeMode
             return board;
         }
 
-        public static bool EligibleForLadder(out string reason)
+        public static bool CanSend(out string reason)
         {
             if (!LadderConfig.Enabled)
             {
                 reason = "ladder submission is off";
+                return false;
+            }
+            if (!SteamIdentity.Available || string.IsNullOrEmpty(SteamIdentity.SteamId))
+            {
+                reason = "Steam is not available";
+                return false;
+            }
+            reason = string.Empty;
+            return true;
+        }
+
+        public static bool EligibleForLadder(out string reason)
+        {
+            if (!CanSend(out reason))
+            {
                 return false;
             }
             if (!RogueRun.Daily)
@@ -179,9 +194,9 @@ namespace RoguelikeMode
                 reason = "other mods were active";
                 return false;
             }
-            if (!SteamIdentity.Available || string.IsNullOrEmpty(SteamIdentity.SteamId))
+            if (RogueRun.CheatsUsed)
             {
-                reason = "Steam is not available";
+                reason = "cheats were used";
                 return false;
             }
             reason = string.Empty;
@@ -234,7 +249,7 @@ namespace RoguelikeMode
                 return;
             }
             string reason;
-            if (!EligibleForLadder(out reason))
+            if (!CanSend(out reason))
             {
                 return;
             }

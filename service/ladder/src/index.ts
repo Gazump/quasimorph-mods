@@ -15,7 +15,7 @@ const TIER_MULT: Record<Tier, number> = { easy: 0.75, normal: 1.0, hard: 1.25 };
 const MAX_CLOCK_SKEW_SEC = 900;
 const NONCE_TTL_SEC = 3600;
 const DEFAULT_MAX_SUBMITS_PER_DAY = 25;
-const FLOOR_COUNT = 10;
+const FLOOR_COUNT = 5;
 
 interface Submission {
   v: number;

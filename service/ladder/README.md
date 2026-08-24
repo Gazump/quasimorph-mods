@@ -17,7 +17,7 @@ What the service does do:
 - **Server-authoritative scoring.** The score stored is always recomputed from the
   run's components (floor, kills, victory, damage, tier). A submission whose claimed
   score disagrees with its own components by more than 1 point is rejected.
-- **Plausibility bounds.** Floor 1–10, victory only on floor 10, minimum turns and
+- **Plausibility bounds.** Floor 1–5, victory only on floor 5, minimum turns and
   wall-clock duration per floor reached, capped kills/damage.
 - **Bracket integrity.** Only `daily` runs are ranked, only for today's or yesterday's
   UTC bracket, and only when the run reported no other mods active.
@@ -115,7 +115,7 @@ the mod at it with the console command `rogue_ladder endpoint http://127.0.0.1:8
   "tier": "normal",
   "total": 41,
   "entries": [
-    { "rank": 1, "name": "Gazump", "score": 18450, "floor": 10, "kills": 143,
+    { "rank": 1, "name": "Gazump", "score": 18450, "floor": 5, "kills": 143,
       "turns": 812, "damage": 640, "victory": true, "durationSec": 3600,
       "class": "class_id" }
   ]
@@ -128,10 +128,10 @@ Header `X-Rogue-Sig: <hex HMAC-SHA256 of the raw request body, keyed by SUBMIT_S
 
 ```json
 {
-  "v": 1, "mod": "0.2.0", "game": "1.0.2.573",
+  "v": 1, "mod": "0.4.0", "game": "1.0.2.573",
   "day": "2026-08-18", "mode": "daily", "tier": "normal",
   "steamId": "76561190000000000", "name": "Gazump",
-  "floor": 10, "kills": 143, "turns": 812, "damage": 640,
+  "floor": 5, "kills": 143, "turns": 812, "damage": 640,
   "victory": true, "score": 18450, "durationSec": 3600,
   "mods": [], "profile": "spec_id", "class": "class_id",
   "nonce": "0123456789abcdef", "ts": 1786000000
