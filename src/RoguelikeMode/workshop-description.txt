@@ -1,6 +1,6 @@
-A pure roguelike mode. No ship or campaign, just five levels of sharply increasing difficulty as you start with nothing and scavenge your way to the Golden Keycard, your only way out of this pit of hell.
+﻿A pure roguelike mode. No ship or campaign, just five levels of sharply increasing difficulty as you start with nothing and scavenge your way to the Golden Keycard, your only way out of this pit of hell.
 
-[b]EXPERIMENTAL v0.2[/b] - this is under active development and so there may be some bugs. It never touches campaign slots, so it should be safe to use. Always back up saves before using new mods!
+[b]EXPERIMENTAL v0.3[/b] - this is under active development and so there may be some bugs. It never touches campaign slots, so it should be safe to use. Always back up saves before using new mods!
 
 [h2]The Dive[/h2]
 Find the new game mode button on the main menu. Clicking this takes you to [b]The Dive - Roguelike Mode[/b], where you can choose between:
@@ -44,6 +44,7 @@ Runs are kept locally in your dive log. Mods can make runs easier, so mods are c
 [h2]Additional Mechanics/Changes[/h2]
 [list]
 [*][b]Updating class[/b] - if you find an item which unlocks a new class/perk, you can now apply that during the run. This makes these items much more useful and interesting to find!
+[*][b]Field surgery[/b] - implants and prosthetics can be installed straight from your inventory during a run. The usual socket and compatibility rules apply
 [*][b]Loot tuning[/b] - weapon and armor cases no longer appear in floor loot on Normal and Hard, so your gear upgrades have to be earned. Easy keeps them
 [*][b]The keycard shines[/b] - you'll know it when you see it
 [/list]
@@ -54,4 +55,4 @@ If you like my mods so much that you'd like to buy me a coffee, you can do so at
 [h2]Source[/h2]
 Source code for all my mods can be found on GitHub: [url=https://github.com/Gazump/quasimorph-mods]github.com/Gazump/quasimorph-mods[/url]
 
-[b]Version:[/b] 0.2.0 (Experimental, 22 Aug)
+[b]Version:[/b] 0.3.0 (Experimental, 22 Aug)
