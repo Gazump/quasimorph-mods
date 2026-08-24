@@ -28,6 +28,8 @@ namespace RoguelikeMode
         public static readonly string[] BlockedContainerIds = { "weapon_container", "armor_container", "security_clothing_container" };
         public static readonly string[] TerminalContainerIds = { "data_container", "matrix_box", "common_locker" };
         public const int LearnClassContextBind = 5100;
+        public const int InstallImplantContextBind = 5102;
+        public const int InstallProstheticContextBind = 5103;
         public const string HarmonyId = "quasimorph.roguelikemode";
         public const float TopMonsterPointsMult = 1.35f;
         public const float TopItemPointsMult = 1.25f;
