@@ -11,3 +11,6 @@ publish/
 
 # Decompiled game code. Never commit this: it is Magnum Scriptum's, not ours.
 reference/
+
+# Live ladder endpoint + submit secret; the committed default has placeholders
+src/RoguelikeMode/local/

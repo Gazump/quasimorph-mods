@@ -80,8 +80,11 @@ npm run deploy
 ```
 
 Wrangler prints the live URL, `https://quasimorph-dive-ladder.<your-subdomain>.workers.dev`.
-That URL and the `SUBMIT_SECRET` value go into `src/RoguelikeMode/LadderConfig.cs`
-(`DefaultEndpoint` and `SubmitSecret`) before building the mod for release.
+That URL and the `SUBMIT_SECRET` value go into the gitignored
+`src/RoguelikeMode/local/LadderSecrets.cs` (same shape as the committed
+`LadderSecretsDefault.cs`, which holds placeholders); the csproj compiles the local
+file instead of the default whenever it exists, so release builds carry the live
+values without the secret ever entering git.
 
 To serve it from your own domain instead, add a route in `wrangler.toml` and point a
 CNAME at the Worker — the mod only cares that the base URL answers `/v1/health`.
