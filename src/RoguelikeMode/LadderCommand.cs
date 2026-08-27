@@ -8,7 +8,7 @@ namespace RoguelikeMode
     {
         public static string Help(string command, bool verbose)
         {
-            return "Online daily ladder. Syntax: rogue_ladder [on|off|status|board [easy|normal|hard]|retry|endpoint <url>]";
+            return "Online daily ladder. Syntax: rogue_ladder [on|off|status|board|retry|endpoint <url>]";
         }
 
         public string Execute(string[] tokens)
@@ -33,23 +33,8 @@ namespace RoguelikeMode
                     LadderClient.FlushPending();
                     return "retrying any stored submission - watch Player.log for [RoguelikeMode]";
                 case "board":
-                {
-                    RogueTier tier = RogueTier.Normal;
-                    if (tokens.Length > 1)
-                    {
-                        string wanted = tokens[1].ToLowerInvariant();
-                        if (wanted == "easy")
-                        {
-                            tier = RogueTier.Easy;
-                        }
-                        else if (wanted == "hard")
-                        {
-                            tier = RogueTier.Hard;
-                        }
-                    }
-                    LadderClient.Fetch(LadderClient.TodayUtc(), tier);
-                    return "fetching " + tier + " board for " + LadderClient.TodayUtc() + " - open THE DIVE screen or check Player.log";
-                }
+                    LadderClient.Fetch(LadderClient.TodayUtc());
+                    return "fetching the board for " + LadderClient.TodayUtc() + " - open THE DIVE screen or check Player.log";
                 default:
                 {
                     string text = "ladder submission: " + (LadderConfig.Enabled ? "ON" : "OFF")

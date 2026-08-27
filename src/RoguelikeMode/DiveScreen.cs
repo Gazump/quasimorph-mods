@@ -53,6 +53,8 @@ namespace RoguelikeMode
         private static bool _daily = true;
         private static RogueTier _tier = RogueTier.Normal;
         private static int _candidate;
+        private static int _lengthIndex = 1;
+        private static CommonButton _lengthButton;
 
         private static readonly List<(CommonButton button, bool daily)> _modeButtons = new List<(CommonButton, bool)>();
         private static readonly List<(CommonButton button, RogueTier tier)> _tierButtons = new List<(CommonButton, RogueTier)>();
@@ -155,6 +157,7 @@ namespace RoguelikeMode
             AddSectionHeader(leftPanel, "ui.dive.mode", "MODE");
             _modeButtons.Add((AddRowButton(leftPanel, "ui.dive.optdaily", () => SelectMode(true)), true));
             _modeButtons.Add((AddRowButton(leftPanel, "ui.dive.optrandom", () => SelectMode(false)), false));
+            _lengthButton = AddRowButton(leftPanel, "ui.dive.length", CycleLength);
 
             AddSectionHeader(leftPanel, "ui.dive.difficulty", "DIFFICULTY");
             _tierButtons.Add((AddRowButton(leftPanel, "ui.dive.opteasy", () => SelectTier(RogueTier.Easy)), RogueTier.Easy));
@@ -347,6 +350,12 @@ namespace RoguelikeMode
             RefreshRightPanel();
         }
 
+        private static void CycleLength()
+        {
+            _lengthIndex = (_lengthIndex + 1) % RogueConfig.FloorChoices.Length;
+            RefreshSelections();
+        }
+
         private static void ToggleLadder()
         {
             LadderConfig.SetEnabled(!LadderConfig.Enabled);
@@ -401,6 +410,13 @@ namespace RoguelikeMode
             foreach ((CommonButton button, bool daily) in _modeButtons)
             {
                 button.ChangeLabel(daily ? "ui.dive.optdaily" : "ui.dive.optrandom");
+            }
+            if (_lengthButton != null)
+            {
+                _lengthButton.gameObject.SetActive(!_daily);
+                int floors = RogueConfig.FloorChoices[_lengthIndex];
+                LocalizationInjector.Set("ui.dive.length", $"LENGTH: {floors} FLOORS - {RogueConfig.FloorChoiceLabels[_lengthIndex]}");
+                _lengthButton.ChangeLabel("ui.dive.length");
             }
             LocalizationInjector.Set("ui.dive.opteasy", Caption("EASY", _tier == RogueTier.Easy));
             LocalizationInjector.Set("ui.dive.optnormal", Caption("NORMAL", _tier == RogueTier.Normal));
@@ -483,13 +499,13 @@ namespace RoguelikeMode
             {
                 return;
             }
-            string key = LadderDay() + ":" + LadderClient.TierKey(_tier);
+            string key = LadderDay();
             if (_fetchedKey == key && LadderClient.BoardStatus != LadderStatus.Idle)
             {
                 return;
             }
             _fetchedKey = key;
-            LadderClient.Fetch(LadderDay(), _tier);
+            LadderClient.Fetch(key);
         }
 
         private static void RefreshLadderText()
@@ -500,8 +516,7 @@ namespace RoguelikeMode
             }
 
             string day = LadderDay();
-            string tierKey = LadderClient.TierKey(_tier);
-            string text = day + "  -  " + _tier.ToString().ToUpperInvariant() + "\n\n";
+            string text = day + "\n\n";
 
             if (!LadderConfig.Configured)
             {
@@ -511,7 +526,7 @@ namespace RoguelikeMode
             }
 
             LadderBoard board = LadderClient.Board;
-            bool boardMatches = board != null && board.Day == day && board.Tier == tierKey;
+            bool boardMatches = board != null && board.Day == day;
 
             if (LadderClient.BoardStatus == LadderStatus.Loading)
             {
@@ -528,8 +543,9 @@ namespace RoguelikeMode
                 {
                     LadderEntry entry = board.Entries[i];
                     anyModded |= entry.Modded;
+                    string tierTag = string.IsNullOrEmpty(entry.Tier) ? string.Empty : (", " + entry.Tier.ToUpperInvariant());
                     text += entry.Rank + ". " + entry.Score + " pts - floor " + entry.Floor
-                        + ", " + entry.Kills + " kills - " + entry.Name
+                        + ", " + entry.Kills + " kills" + tierTag + " - " + entry.Name
                         + (entry.Modded ? "*" : string.Empty)
                         + (entry.Victory ? " - VICTORY" : string.Empty) + "\n";
                 }
@@ -541,7 +557,7 @@ namespace RoguelikeMode
             }
             else if (boardMatches)
             {
-                text += "Nobody has posted a score in this bracket yet.\nBe the first.";
+                text += "Nobody has posted a score today yet.\nBe the first.";
             }
             else
             {
@@ -590,23 +606,46 @@ namespace RoguelikeMode
                 text += "LAST DIVE\n" + RogueRun.LastSummary + "\n\n";
             }
             RogueScoreStore store = ScoreSystem.Load();
+            List<RogueScoreEntry> todays = new List<RogueScoreEntry>();
+            string today = RogueRun.TodayLabel();
+            foreach (RogueScoreEntry entry in store.Entries)
+            {
+                if (entry.Daily && entry.Day == today)
+                {
+                    todays.Add(entry);
+                }
+            }
+            if (todays.Count > 0)
+            {
+                text += "TODAY'S DAILY\n";
+                for (int i = 0; i < todays.Count && i < 8; i++)
+                {
+                    text += FormatScoreRow(i, todays[i], showMode: false);
+                }
+                text += "\n";
+            }
             if (store.Entries.Count > 0)
             {
                 text += "TOP DIVES\n";
                 int count = Mathf.Min(8, store.Entries.Count);
                 for (int i = 0; i < count; i++)
                 {
-                    RogueScoreEntry e = store.Entries[i];
-                    string mode = e.Daily ? e.Day : "random";
-                    string name = Localization.Get("spec." + e.ProfileId + ".name");
-                    text += $"{i + 1}. {e.Score} pts - floor {e.Floor}, {e.Kills} kills, {(RogueTier)e.Tier}, {mode}, {name}{(e.Victory ? " - VICTORY" : "")}\n";
+                    text += FormatScoreRow(i, store.Entries[i], showMode: true);
                 }
             }
             if (string.IsNullOrEmpty(text))
             {
-                text = $"No dives recorded yet.\n\nPick a mode, difficulty and operator, then START DIVE.\n\nReach floor {RogueConfig.FloorCount}, seize the GOLDEN KEYCARD, evacuate alive.";
+                text = "No dives recorded yet.\n\nPick a mode, difficulty and operator, then START DIVE.\n\nReach the bottom floor, seize the GOLDEN KEYCARD, evacuate alive.";
             }
             _logText.text = text;
+        }
+
+        private static string FormatScoreRow(int index, RogueScoreEntry entry, bool showMode)
+        {
+            string floors = entry.TotalFloors > 0 ? $"{entry.Floor}/{entry.TotalFloors}" : entry.Floor.ToString();
+            string name = Localization.Get("spec." + entry.ProfileId + ".name");
+            string mode = showMode ? ((entry.Daily ? entry.Day : "random") + ", ") : string.Empty;
+            return $"{index + 1}. {entry.Score} pts - floor {floors}, {entry.Kills} kills, {(RogueTier)entry.Tier}, {mode}{name}{(entry.Victory ? " - VICTORY" : "")}\n";
         }
 
         private static void StartDive()
@@ -617,8 +656,9 @@ namespace RoguelikeMode
             }
             int candidate = _candidate;
             RogueTier tier = _tier;
+            int floors = _daily ? RogueConfig.DefaultFloorCount : RogueConfig.FloorChoices[_lengthIndex];
             Close();
-            RogueRunner.Get(_state).BeginRun(candidate, tier);
+            RogueRunner.Get(_state).BeginRun(candidate, tier, floors);
         }
 
         private static void ResumeDive()

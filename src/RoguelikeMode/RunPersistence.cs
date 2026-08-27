@@ -50,6 +50,9 @@ namespace RoguelikeMode
         public bool TerminalUsed { get; set; }
 
         [Save]
+        public int TotalFloors { get; set; }
+
+        [Save]
         public string StartedUtc { get; set; }
 
         [Save]
@@ -90,6 +93,7 @@ namespace RoguelikeMode
                     CheatsUsed = RogueRun.CheatsUsed,
                     TerminalPosition = RogueRun.TerminalPosition,
                     TerminalUsed = RogueRun.TerminalUsed,
+                    TotalFloors = RogueRun.TotalFloors,
                     StartedUtc = RogueRun.StartedUtc.ToString("O"),
                     Merc = mercenary
                 };
@@ -127,9 +131,10 @@ namespace RoguelikeMode
                     Delete();
                     return null;
                 }
-                if (RogueRun.FloorOf(save.LocationId) > RogueConfig.FloorCount)
+                int totalFloors = save.TotalFloors > 0 ? save.TotalFloors : RogueConfig.DefaultFloorCount;
+                if (RogueRun.FloorOf(save.LocationId) > totalFloors)
                 {
-                    Debug.Log($"[RoguelikeMode] Suspended run on {save.LocationId} exceeds the current floor count, removing.");
+                    Debug.Log($"[RoguelikeMode] Suspended run on {save.LocationId} exceeds its floor count, removing.");
                     Delete();
                     return null;
                 }

@@ -8,5 +8,5 @@ database_name = "dive-ladder"
 database_id = "d3368c22-6e78-4edd-bb0e-e0117eabd722"
 
 [vars]
-ALLOWED_MOD_VERSIONS = "0.4.0"
+ALLOWED_MOD_VERSIONS = "0.4.0,0.5.0"
 MAX_SUBMITS_PER_DAY = "25"

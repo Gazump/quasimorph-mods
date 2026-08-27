@@ -246,16 +246,15 @@ async function handleSubmit(request: Request, env: Env): Promise<Response> {
   let rank = 0;
   if (best) {
     const ahead = await env.DB.prepare(
-      `SELECT COUNT(*) AS ahead FROM runs
-       WHERE day = ? AND tier = ? AND (score > ? OR (score = ? AND created_at < ?))`,
+      "SELECT COUNT(DISTINCT player_key) AS ahead FROM runs WHERE day = ? AND score > ?",
     )
-      .bind(body.day, tier, best.score, best.score, best.created_at)
+      .bind(body.day, best.score)
       .first<{ ahead: number }>();
     rank = (ahead?.ahead ?? 0) + 1;
   }
 
-  const counts = await env.DB.prepare("SELECT COUNT(*) AS total FROM runs WHERE day = ? AND tier = ?")
-    .bind(body.day, tier)
+  const counts = await env.DB.prepare("SELECT COUNT(DISTINCT player_key) AS total FROM runs WHERE day = ?")
+    .bind(body.day)
     .first<{ total: number }>();
 
   await env.DB.prepare("DELETE FROM nonces WHERE ts < ?").bind(now - NONCE_TTL_SEC).run();
@@ -275,44 +274,61 @@ async function handleSubmit(request: Request, env: Env): Promise<Response> {
 
 async function handleBoard(url: URL, env: Env): Promise<Response> {
   const day = url.searchParams.get("day") ?? utcDay(0);
-  const tier = url.searchParams.get("tier") ?? "normal";
+  const tierParam = url.searchParams.get("tier") ?? "all";
   if (!isDayString(day)) return reject("bad day");
-  if (!isTier(tier)) return reject("bad tier");
+  const combined = tierParam === "all";
+  if (!combined && !isTier(tierParam)) return reject("bad tier");
 
   const requested = Number(url.searchParams.get("limit") ?? 25);
   const limit = Math.min(Math.max(Number.isFinite(requested) ? requested : 25, 1), 100);
 
-  const { results } = await env.DB.prepare(
-    `SELECT name, score, floor, kills, turns, damage, victory, duration_sec, class, modded
-     FROM runs WHERE day = ? AND tier = ?
-     ORDER BY score DESC, created_at ASC
-     LIMIT ?`,
-  )
-    .bind(day, tier, limit)
-    .all<{
-      name: string;
-      score: number;
-      floor: number;
-      kills: number;
-      turns: number;
-      damage: number;
-      victory: number;
-      duration_sec: number;
-      class: string | null;
-      modded: number;
-    }>();
+  interface BoardRow {
+    name: string;
+    tier: string;
+    score: number;
+    floor: number;
+    kills: number;
+    turns: number;
+    damage: number;
+    victory: number;
+    duration_sec: number;
+    class: string | null;
+    modded: number;
+  }
 
-  const counts = await env.DB.prepare("SELECT COUNT(*) AS total FROM runs WHERE day = ? AND tier = ?")
-    .bind(day, tier)
-    .first<{ total: number }>();
+  const query = combined
+    ? env.DB.prepare(
+        `SELECT name, tier, MAX(score) AS score, floor, kills, turns, damage, victory, duration_sec, class, modded
+         FROM runs WHERE day = ?
+         GROUP BY player_key
+         ORDER BY score DESC, created_at ASC
+         LIMIT ?`,
+      ).bind(day, limit)
+    : env.DB.prepare(
+        `SELECT name, tier, score, floor, kills, turns, damage, victory, duration_sec, class, modded
+         FROM runs WHERE day = ? AND tier = ?
+         ORDER BY score DESC, created_at ASC
+         LIMIT ?`,
+      ).bind(day, tierParam, limit);
+
+  const { results } = await query.all<BoardRow>();
+
+  const counts = combined
+    ? await env.DB.prepare("SELECT COUNT(DISTINCT player_key) AS total FROM runs WHERE day = ?")
+        .bind(day)
+        .first<{ total: number }>()
+    : await env.DB.prepare("SELECT COUNT(*) AS total FROM runs WHERE day = ? AND tier = ?")
+        .bind(day, tierParam)
+        .first<{ total: number }>();
 
   return json({
     day,
-    tier,
+    tier: tierParam,
     total: counts?.total ?? 0,
     entries: (results ?? []).map((row, index) => ({
       rank: index + 1,
       name: row.name,
+      tier: row.tier,
       score: row.score,
       floor: row.floor,
       kills: row.kills,

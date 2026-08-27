@@ -16,7 +16,7 @@ namespace RoguelikeMode
 
     public static class LadderConfig
     {
-        public const string ModVersion = "0.4.0";
+        public const string ModVersion = "0.5.0";
         public const string DefaultEndpoint = LadderSecrets.Endpoint;
         public const string SubmitSecret = LadderSecrets.SubmitSecret;
 

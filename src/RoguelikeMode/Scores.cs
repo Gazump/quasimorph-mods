@@ -27,6 +27,9 @@ namespace RoguelikeMode
         public int Floor { get; set; }
 
         [Save]
+        public int TotalFloors { get; set; }
+
+        [Save]
         public int Kills { get; set; }
 
         [Save]
@@ -83,6 +86,7 @@ namespace RoguelikeMode
                 ProfileId = profileId,
                 ClassId = classId,
                 Floor = RogueRun.DeepestFloor,
+                TotalFloors = RogueRun.TotalFloors,
                 Kills = RogueRun.PlayerKills,
                 Turns = turns,
                 DamageTaken = RogueRun.DamageTaken,

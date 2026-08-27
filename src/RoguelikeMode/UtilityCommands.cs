@@ -56,7 +56,7 @@ namespace RoguelikeMode
 
         public static string Help(string command, bool verbose)
         {
-            return "Debug: jump to a floor of the active roguelike run. Syntax: rogue_goto <1-" + RogueConfig.FloorCount + ">";
+            return "Debug: jump to a floor of the active roguelike run. Syntax: rogue_goto <1-" + RogueRun.TotalFloors + ">";
         }
 
         public string Execute(string[] tokens)
@@ -71,9 +71,9 @@ namespace RoguelikeMode
             }
             if (tokens == null || tokens.Length == 0)
             {
-                return "Usage: rogue_goto <1-" + RogueConfig.FloorCount + ">";
+                return "Usage: rogue_goto <1-" + RogueRun.TotalFloors + ">";
             }
-            int floor = Mathf.Clamp(ParseHelper.ParseInt(tokens[0]), 1, RogueConfig.FloorCount);
+            int floor = Mathf.Clamp(ParseHelper.ParseInt(tokens[0]), 1, RogueRun.TotalFloors);
             State state = HarmonyLib.AccessTools.Field(typeof(GameModeStateMachine), "_state").GetValue(_stateMachine) as State;
             RogueRunner.Get(state).JumpToFloor(floor);
             return "jumping to floor " + floor;
@@ -81,7 +81,7 @@ namespace RoguelikeMode
 
         public static List<string> FetchAutocompleteOptions(string command, string[] tokens)
         {
-            return new List<string> { RogueConfig.FloorCount.ToString() };
+            return new List<string> { RogueRun.TotalFloors.ToString() };
         }
 
         public static bool IsAvailable()

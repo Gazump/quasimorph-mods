@@ -13,7 +13,10 @@ namespace RoguelikeMode
     public static class RogueConfig
     {
         public const string KeycardId = "rogue_golden_keycard";
-        public const int FloorCount = 5;
+        public const int DefaultFloorCount = 5;
+        public const int EscalationSpanCap = 10;
+        public static readonly int[] FloorChoices = { 3, 5, 10, 99 };
+        public static readonly string[] FloorChoiceLabels = { "QUICK", "NORMAL", "LONG", "SILLY" };
         public const int MissionDifficultyRating = 100;
         public const string StoryId = "RogueDescent";
         public const string EasyCaptionKey = "ui.rogue.easy";
@@ -37,9 +40,20 @@ namespace RoguelikeMode
         public const int MinRoomsFirstFloor = 6;
         public const int MaxRoomsLastFloor = 12;
 
+        public static float FloorProgress(int floor)
+        {
+            int span = Mathf.Min(RogueRun.TotalFloors, EscalationSpanCap);
+            if (span <= 1)
+            {
+                return 1f;
+            }
+            return Mathf.Clamp01((floor - 1) / (float)(span - 1));
+        }
+
         public static int TechLevelForFloor(int floor)
         {
-            return Mathf.Clamp(floor, 1, Data.Global.MaxTechLevel);
+            int max = Data.Global.MaxTechLevel;
+            return Mathf.Clamp(1 + Mathf.CeilToInt(FloorProgress(floor) * (max - 1)), 1, max);
         }
     }
 }

@@ -1,12 +1,12 @@
-﻿A pure roguelike mode. No ship or campaign, just five levels of sharply increasing difficulty as you start with nothing and scavenge your way to the Golden Keycard, your only way out of this pit of hell.
+﻿A pure roguelike mode. No ship or campaign, just a sharply escalating descent as you start with nothing and scavenge your way to the Golden Keycard, your only way out of this pit of hell.
 
-[b]EXPERIMENTAL v0.4[/b] - this is under active development and so there may be some bugs. It never touches campaign slots, so it should be safe to use. Always back up saves before using new mods!
+[b]EXPERIMENTAL v0.5[/b] - this is under active development and so there may be some bugs. It never touches campaign slots, so it should be safe to use. Always back up saves before using new mods!
 
 [h2]The Dive[/h2]
 Find the new game mode button on the main menu. Clicking this takes you to [b]The Dive - Roguelike Mode[/b], where you can choose between:
 [list]
 [*][b]Daily Dive[/b] - a seed-based run which is the same for everyone on the same day. A countdown on the Dive screen shows how long until the next daily
-[*][b]Random Dive[/b] - a completely random run
+[*][b]Random Dive[/b] - a completely random run, with a pick of depth: 3, 5, 10 or a silly 99 floors
 [/list]
 
 Then choose difficulty, which loosely maps to the game's difficulties:
@@ -19,7 +19,7 @@ Then choose difficulty, which loosely maps to the game's difficulties:
 Then choose one of three randomly generated characters. For a Daily Dive, these are the same for everyone. They roll with random stats [i]and[/i] classes.
 
 [h2]Objective[/h2]
-Find the [b]Golden Keycard[/b] on the bottom level (level 5). This is the only way to win the run and provides a significant bonus to your run score!
+Find the [b]Golden Keycard[/b] on the bottom level. This is the only way to win the run and provides a significant bonus to your run score!
 
 [h2]Barter Terminal[/h2]
 Every floor has a glowing terminal near the entrance. Load it with anything you don't need, hit [b]TRADE-IN[/b], and it pays out random gear worth 85% of the value, scaled to your current depth. One use per floor, and any leftover value carries to the next terminal as credit. On a Daily Dive the trades are deterministic, so the same offering gets everyone the same result.
@@ -42,7 +42,7 @@ Using console commands during a run disables scoring for that run. You can still
 Runs are kept locally in your dive log. There are no save slots used, but run history is stored in mod-specific [i]roguelike_*.dat[/i] files alongside your save files.
 
 [h2]Online Daily Ladder (NEW)[/h2]
-The Dive screen now has a [b]LADDER[/b] tab showing a global daily leaderboard for each difficulty. Ranked runs are Daily Dives only - the random mode stays offline.
+The Dive screen has a [b]LADDER[/b] tab showing one global daily leaderboard across all difficulties, with each entry showing the difficulty it was earned on. Ranked runs are Daily Dives only - the random mode stays offline.
 
 Submitting your runs is [b]opt-in and off by default[/b]. Flip [b]SUBMIT MY DIVES[/b] on the ladder tab (or use the [i]rogue_ladder[/i] console command) to join in. When enabled, a finished daily dive sends your Steam name, Steam ID and run stats to the ladder server; your Steam ID is used once to keep one best score per player per day and is stored only as an anonymous hash, never raw. Reading the board sends nothing about you. Turn it off any time and nothing further is sent.
 
@@ -62,4 +62,4 @@ If you like my mods so much that you'd like to buy me a coffee, you can do so at
 [h2]Source[/h2]
 Source code for all my mods can be found on GitHub: [url=https://github.com/Gazump/quasimorph-mods]github.com/Gazump/quasimorph-mods[/url]
 
-[b]Version:[/b] 0.4.0 (Experimental, 24 Aug)
+[b]Version:[/b] 0.5.0 (Experimental, 27 Aug)

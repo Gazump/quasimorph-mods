@@ -22,6 +22,7 @@ namespace RoguelikeMode
     {
         public int Rank;
         public string Name;
+        public string Tier;
         public int Score;
         public int Floor;
         public int Kills;
@@ -96,7 +97,7 @@ namespace RoguelikeMode
             return DateTime.UtcNow.ToString("yyyy-MM-dd");
         }
 
-        public static void Fetch(string day, RogueTier tier)
+        public static void Fetch(string day)
         {
             CoroutineRunner runner = SingletonMonoBehaviour<CoroutineRunner>.Instance;
             if (runner == null)
@@ -105,13 +106,13 @@ namespace RoguelikeMode
             }
             BoardStatus = LadderStatus.Loading;
             BoardError = string.Empty;
-            runner.StartCoroutine(FetchRoutine(day, tier));
+            runner.StartCoroutine(FetchRoutine(day));
         }
 
-        private static IEnumerator FetchRoutine(string day, RogueTier tier)
+        private static IEnumerator FetchRoutine(string day)
         {
             string url = LadderConfig.Endpoint + "/v1/board?day=" + UnityWebRequest.EscapeURL(day)
-                + "&tier=" + TierKey(tier) + "&limit=15";
+                + "&tier=all&limit=15";
             using (UnityWebRequest request = UnityWebRequest.Get(url))
             {
                 request.timeout = TimeoutSeconds;
@@ -156,6 +157,7 @@ namespace RoguelikeMode
                     {
                         Rank = node["rank"].AsInt,
                         Name = node["name"].Value,
+                        Tier = node["tier"].Value,
                         Score = node["score"].AsInt,
                         Floor = node["floor"].AsInt,
                         Kills = node["kills"].AsInt,

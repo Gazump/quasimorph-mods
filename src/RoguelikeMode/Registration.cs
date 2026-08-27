@@ -49,8 +49,8 @@ namespace RoguelikeMode
                 DifficultyRating = RogueConfig.MissionDifficultyRating,
                 MonsterPointsPerStage = high?.MonsterPointsPerStage ?? 100,
                 ItemPointsPerStage = high?.ItemPointsPerStage ?? 100,
-                MinStages = RogueConfig.FloorCount,
-                MaxStages = RogueConfig.FloorCount,
+                MinStages = RogueConfig.DefaultFloorCount,
+                MaxStages = RogueConfig.DefaultFloorCount,
                 MinRooms = low?.MinRooms ?? 4,
                 MaxRooms = high?.MaxRooms ?? 7,
                 MinCorridors = low?.MinCorridors ?? 1,
@@ -183,7 +183,7 @@ namespace RoguelikeMode
         private static void ExtendElevatorFloorMap()
         {
             Dictionary<string, int> map = AccessTools.StaticFieldRefAccess<Dictionary<string, int>>(typeof(ElevatorWindow), "_stageToFloor");
-            for (int i = 8; i <= 15; i++)
+            for (int i = 8; i <= 99; i++)
             {
                 string key = "stage" + i;
                 if (!map.ContainsKey(key))

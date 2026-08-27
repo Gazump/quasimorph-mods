@@ -8,6 +8,7 @@ namespace RoguelikeMode
         public static bool Active;
         public static bool Daily = true;
         public static RogueTier Tier = RogueTier.Normal;
+        public static int TotalFloors = RogueConfig.DefaultFloorCount;
         public static string DayLabel = string.Empty;
         public static int DaySeed;
         public static int CandidateIndex;
@@ -48,10 +49,11 @@ namespace RoguelikeMode
             Active = false;
         }
 
-        public static void BeginRunState(int candidateIndex, RogueTier tier)
+        public static void BeginRunState(int candidateIndex, RogueTier tier, int totalFloors)
         {
             CandidateIndex = candidateIndex;
             Tier = tier;
+            TotalFloors = (Daily || totalFloors < 1) ? RogueConfig.DefaultFloorCount : totalFloors;
             StartedUtc = DateTime.UtcNow;
             CurrentFloor = 0;
             DeepestFloor = 0;

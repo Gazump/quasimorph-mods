@@ -5,7 +5,7 @@
     <RootNamespace>RoguelikeMode</RootNamespace>
     <!-- Must match UniqueModName in modmanifest.json. Letters, digits and underscore only. -->
     <UniqueModName>RoguelikeMode</UniqueModName>
-    <Version>0.4.0</Version>
+    <Version>0.5.0</Version>
   </PropertyGroup>
 
   <ItemGroup Condition="Exists('local\LadderSecrets.cs')">

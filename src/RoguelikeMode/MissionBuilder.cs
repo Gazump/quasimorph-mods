@@ -53,7 +53,7 @@ namespace RoguelikeMode
             UnityEngine.Random.InitState(RogueRun.SeedFor("mission-structure"));
             AccessTools.Method(typeof(MissionFactory), "GenerateProceduralStructure")
                 .Invoke(missionFactory, new object[] { mission, missionTemplate, beneficiary, victim.Id, chosen.Record.StationType });
-            string lastStageId = "stage" + RogueConfig.FloorCount;
+            string lastStageId = "stage" + RogueRun.TotalFloors;
             if (!mission.LocationPlans.ContainsKey(lastStageId))
             {
                 Debug.LogError($"[RoguelikeMode] Generated mission has no {lastStageId}; stages: {string.Join(", ", mission.LocationPlans.Keys)}");
@@ -145,7 +145,7 @@ namespace RoguelikeMode
             System.Random rng = new System.Random(RogueRun.SeedFor("themes"));
             var generatePlan = AccessTools.Method(typeof(MissionFactory), "GenerateProceduralPlan");
             Theme previous = new Theme { Template = baseTemplate, StationType = baseStationType };
-            for (int floor = 2; floor <= RogueConfig.FloorCount; floor++)
+            for (int floor = 2; floor <= RogueRun.TotalFloors; floor++)
             {
                 Theme theme = themes[rng.Next(themes.Count)];
                 if (theme.Template == previous.Template)
@@ -193,7 +193,7 @@ namespace RoguelikeMode
                 {
                     continue;
                 }
-                float t = (floor - 1) / (float)(RogueConfig.FloorCount - 1);
+                float t = RogueConfig.FloorProgress(floor);
                 DungeonGenerationPlan plan = pair.Value;
                 float mapScale = Mathf.Lerp(RogueConfig.FirstFloorMapScale, 1f, t);
                 plan.MapGridWidth = Mathf.Max(45, Mathf.RoundToInt(plan.MapGridWidth * mapScale));

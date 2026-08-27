@@ -115,11 +115,11 @@ run.score = scoreOf(run);
 r = await submit(run);
 check('weaker player ranked below both full runs', r.json.rank === 3, r.json);
 
-// 12. tier brackets are separate
+// 12. rank spans all difficulties on the daily board
 run = baseRun({ steamId: '76561190000000003', name: 'HardDiver', tier: 'hard', kills: 5, floor: 4, victory: false });
 run.score = scoreOf(run);
 r = await submit(run);
-check('hard bracket independent', r.json.rank === 1 && r.json.tier === 'hard', r.json);
+check('rank spans all difficulties', r.json.rank === 4 && r.json.tier === 'hard', r.json);
 
 // 13. name sanitization
 run = baseRun({ steamId: '76561190000000004', name: '  <color=red>Hax</color>  ' });
@@ -135,6 +135,17 @@ check('rich-text markup stripped from name', hax && !hax.name.includes('<'), hax
 
 // 15. anonymous read needs no signature
 check('board read unauthenticated', typeof board.total === 'number', board.total);
+
+// 15b. combined daily board
+run = baseRun({ tier: 'easy', kills: 3, floor: 2, victory: false }); run.score = scoreOf(run);
+await submit(run);
+const all = await (await fetch(`${BASE}/v1/board?day=${today}&tier=all&limit=20`)).json();
+check('combined board lists every tier', all.entries.some((e) => e.tier === 'hard') && all.entries.some((e) => e.tier === 'normal'), all.entries);
+check('combined board one row per player', all.entries.filter((e) => e.name === 'Gazump').length === 1, all.entries);
+const gz = all.entries.find((e) => e.name === 'Gazump');
+check('combined row is the player best', gz && gz.tier === 'normal', gz);
+check('combined total counts players once', all.total === 5, all.total);
+check('combined board is the default', (await (await fetch(`${BASE}/v1/board?day=${today}`)).json()).tier === 'all', null);
 
 // 16. admin delete
 const del = await fetch(`${BASE}/v1/runs/1`, { method: 'DELETE', headers: { authorization: 'Bearer local-admin-token' } });

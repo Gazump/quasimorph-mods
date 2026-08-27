@@ -135,7 +135,7 @@ namespace RoguelikeMode
                 RogueRun.PrepareDay(daily: true);
             }
             List<(string profileId, string classId)> candidates = RogueRunner.GetDailyCandidates();
-            string text = $"day {RogueRun.DayLabel}, seed {RogueRun.DaySeed:X8}, active {RogueRun.Active}, floor {RogueRun.CurrentFloor}/{RogueConfig.FloorCount}";
+            string text = $"day {RogueRun.DayLabel}, seed {RogueRun.DaySeed:X8}, active {RogueRun.Active}, floor {RogueRun.CurrentFloor}/{RogueRun.TotalFloors}";
             for (int i = 0; i < candidates.Count; i++)
             {
                 text += $"\n  [{i}] {candidates[i].profileId} ({candidates[i].classId})";

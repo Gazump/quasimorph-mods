@@ -12,7 +12,7 @@ namespace RoguelikeMode
             Registration.ContentPath = context.ModContentPath;
             Registration.RegisterAll();
             new Harmony(RogueConfig.HarmonyId).PatchAll(typeof(ModMain).Assembly);
-            Debug.Log("[RoguelikeMode] Loaded: The Dive, " + RogueConfig.FloorCount + " floors.");
+            Debug.Log("[RoguelikeMode] Loaded: The Dive.");
         }
 
         [Hook(ModHookType.MainMenuStarted)]
@@ -68,7 +68,7 @@ namespace RoguelikeMode
             {
                 RunPersistence.SaveFloorEntry(context.State);
             }
-            Debug.Log($"[RoguelikeMode] Entered floor {floor}/{RogueConfig.FloorCount} ({locationMetadata.LocationId}), seed day {RogueRun.DayLabel}.");
+            Debug.Log($"[RoguelikeMode] Entered floor {floor}/{RogueRun.TotalFloors} ({locationMetadata.LocationId}), seed day {RogueRun.DayLabel}.");
         }
 
     }

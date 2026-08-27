@@ -28,7 +28,7 @@ namespace RoguelikeMode
             return _instance;
         }
 
-        public void BeginRun(int candidateIndex, RogueTier tier)
+        public void BeginRun(int candidateIndex, RogueTier tier, int totalFloors = 0)
         {
             if (RogueRun.Active)
             {
@@ -38,7 +38,7 @@ namespace RoguelikeMode
             {
                 RogueRun.PrepareDay(daily: true);
             }
-            RogueRun.BeginRunState(candidateIndex, tier);
+            RogueRun.BeginRunState(candidateIndex, tier, totalFloors);
             CaptureModEnvironment();
             StartCoroutine(ProcessStart(null));
         }
@@ -58,7 +58,7 @@ namespace RoguelikeMode
             RogueRun.PrepareDay(save.Daily);
             RogueRun.DaySeed = save.DaySeed;
             RogueRun.DayLabel = save.DayLabel;
-            RogueRun.BeginRunState(save.CandidateIndex, (RogueTier)save.Tier);
+            RogueRun.BeginRunState(save.CandidateIndex, (RogueTier)save.Tier, save.TotalFloors > 0 ? save.TotalFloors : RogueConfig.DefaultFloorCount);
             RogueRun.DeepestFloor = save.DeepestFloor;
             RogueRun.PlayerKills = save.PlayerKills;
             RogueRun.DamageTaken = save.DamageTaken;
@@ -159,6 +159,12 @@ namespace RoguelikeMode
             else
             {
                 AdoptResumedMercenary(resume.Merc);
+            }
+            MissionDifficultyRecord rogueDifficulty = Data.MissionDifficulty.Get(RogueConfig.MissionDifficultyRating);
+            if (rogueDifficulty != null)
+            {
+                rogueDifficulty.MinStages = RogueRun.TotalFloors;
+                rogueDifficulty.MaxStages = RogueRun.TotalFloors;
             }
             Mission mission = MissionBuilder.BuildDailyMission(_state);
             if (mission == null)
@@ -570,7 +576,7 @@ namespace RoguelikeMode
                 int best = ScoreSystem.BestScore();
                 scoreLine = $"SCORE: {entry.Score}{(entry.Score >= best ? "  (NEW BEST)" : $"  (best: {best})")}";
             }
-            return $"{headline}\n\n{runLabel} ({RogueRun.Tier})\nDeepest floor: {RogueRun.DeepestFloor} / {RogueConfig.FloorCount}\nKills: {kills}\nDamage taken: {RogueRun.DamageTaken}\nTurns: {turns}\n\n{scoreLine}{modsLine}";
+            return $"{headline}\n\n{runLabel} ({RogueRun.Tier})\nDeepest floor: {RogueRun.DeepestFloor} / {RogueRun.TotalFloors}\nKills: {kills}\nDamage taken: {RogueRun.DamageTaken}\nTurns: {turns}\n\n{scoreLine}{modsLine}";
         }
 
         private IEnumerator ProcessSuspendRun()
