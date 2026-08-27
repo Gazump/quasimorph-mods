@@ -1,3 +1,5 @@
+using System.Reflection;
+using HarmonyLib;
 using MGSC;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -6,6 +8,8 @@ namespace RoguelikeMode
 {
     public class ClassTooltipHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
+        private static readonly MethodInfo AddPerkParameters = AccessTools.Method(typeof(TooltipFactory), "AddPerkParameters");
+
         public string ClassId;
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -27,10 +31,10 @@ namespace RoguelikeMode
             {
                 string perkTag = FormatHelper.ClearPerkGrades(perkId);
                 factory.AddPanelToTooltip().SetMultilineName(Localization.Get("perk." + perkTag + ".name")).SetNameColor(Colors.DarkYellow);
-                string description = FormatHelper.GetPerkDesc(perkId);
-                if (!string.IsNullOrEmpty(description))
+                PerkRecord perkRecord = Data.Perks.GetRecord(perkId);
+                if (perkRecord != null && perkRecord.Parameters != null && perkRecord.Parameters.Count > 0)
                 {
-                    factory.AddPanelToTooltip().SetMultilineName(description);
+                    AddPerkParameters.Invoke(factory, new object[] { perkRecord.Parameters });
                 }
             }
         }

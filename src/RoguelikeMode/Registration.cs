@@ -27,6 +27,7 @@ namespace RoguelikeMode
             LocalizationInjector.Set(RogueConfig.DiveButtonCaptionKey, "THE DIVE - ROGUELIKE MODE");
             LocalizationInjector.Set(RogueConfig.TerminalCaptionKey, "BARTER TERMINAL");
             LocalizationInjector.Set(RogueConfig.TradeInCaptionKey, "TRADE-IN");
+            LocalizationInjector.Set("ui.dive.classcaption", "CLASS");
             LocalizationInjector.Set("ui.dive.tablog", "DIVE LOG");
             LocalizationInjector.Set("ui.dive.tabladder", "LADDER");
             LocalizationInjector.Set("ui.dive.laddertoggle", "SUBMIT MY DIVES: OFF");

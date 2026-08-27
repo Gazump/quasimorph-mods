@@ -164,9 +164,7 @@ namespace RoguelikeMode
             for (int i = 0; i < 3; i++)
             {
                 int index = i;
-                CommonButton operatorButton = AddRowButton(leftPanel, "ui.dive.merc" + i, () => SelectOperator(index));
-                _operatorButtons.Add(operatorButton);
-                AddClassIcon(operatorButton);
+                _operatorButtons.Add(AddOperatorRow(leftPanel, "ui.dive.merc" + i, () => SelectOperator(index)));
             }
 
             AddSectionHeader(leftPanel, "ui.dive.spacer", " ");
@@ -285,28 +283,34 @@ namespace RoguelikeMode
             return text;
         }
 
-        private static void AddClassIcon(CommonButton button)
+        private static CommonButton AddOperatorRow(Transform parent, string captionKey, Action onClick)
         {
-            float size = Mathf.Max(_uiFontSize * 1.6f, 24f);
+            float height = Mathf.Max(_uiFontSize * 2.2f, 30f);
+            GameObject row = new GameObject("DiveOperatorRow", typeof(RectTransform));
+            row.transform.SetParent(parent, worldPositionStays: false);
+            HorizontalLayoutGroup layout = row.AddComponent<HorizontalLayoutGroup>();
+            layout.spacing = 8f;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = true;
+            LayoutElement rowElement = row.AddComponent<LayoutElement>();
+            rowElement.preferredHeight = height;
             GameObject iconObject = new GameObject("DiveClassIcon", typeof(RectTransform), typeof(Image));
-            RectTransform iconRect = iconObject.transform as RectTransform;
-            iconRect.SetParent(button.transform, worldPositionStays: false);
-            iconRect.anchorMin = new Vector2(1f, 0.5f);
-            iconRect.anchorMax = new Vector2(1f, 0.5f);
-            iconRect.pivot = new Vector2(1f, 0.5f);
-            iconRect.sizeDelta = new Vector2(size, size);
-            iconRect.anchoredPosition = new Vector2(-10f, 0f);
+            iconObject.transform.SetParent(row.transform, worldPositionStays: false);
+            LayoutElement iconElement = iconObject.AddComponent<LayoutElement>();
+            iconElement.preferredWidth = height;
+            iconElement.preferredHeight = height;
             Image image = iconObject.GetComponent<Image>();
             image.preserveAspect = true;
             image.raycastTarget = true;
             image.enabled = false;
             _classIcons.Add(image);
             _classHovers.Add(iconObject.AddComponent<ClassTooltipHover>());
-            if (button.CaptionLabel != null && button.CaptionLabel.Text != null)
-            {
-                TextMeshProUGUI caption = button.CaptionLabel.Text;
-                caption.margin = new Vector4(caption.margin.x, caption.margin.y, size + 16f, caption.margin.w);
-            }
+            CommonButton button = AddRowButton(row.transform, captionKey, onClick);
+            LayoutElement buttonElement = button.gameObject.GetComponent<LayoutElement>();
+            buttonElement.flexibleWidth = 1f;
+            return button;
         }
 
         private static GameObject CloneLabel(Transform parent)
@@ -430,11 +434,11 @@ namespace RoguelikeMode
             {
                 if (i >= candidates.Count)
                 {
-                    _operatorButtons[i].gameObject.SetActive(false);
+                    _operatorButtons[i].transform.parent.gameObject.SetActive(false);
                     continue;
                 }
                 Mercenary mercenary = candidates[i];
-                _operatorButtons[i].gameObject.SetActive(true);
+                _operatorButtons[i].transform.parent.gameObject.SetActive(true);
                 MercTooltipHover hover = _operatorButtons[i].gameObject.GetComponent<MercTooltipHover>();
                 if (hover == null)
                 {
