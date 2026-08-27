@@ -72,7 +72,7 @@ namespace RoguelikeMode
 
         private static LadderSettings LoadSettings()
         {
-            LadderSettings settings = new LadderSettings { Enabled = false, Endpoint = DefaultEndpoint };
+            LadderSettings settings = new LadderSettings { Enabled = true, Endpoint = DefaultEndpoint };
             FileManager fileManager = SingletonMonoBehaviour<FileManager>.Instance;
             if (fileManager == null || !fileManager.IsFileExist(FileName))
             {
@@ -89,7 +89,7 @@ namespace RoguelikeMode
             catch (Exception ex)
             {
                 Debug.LogError("[RoguelikeMode] Failed to load ladder settings: " + ex.Message);
-                settings = new LadderSettings { Enabled = false, Endpoint = DefaultEndpoint };
+                settings = new LadderSettings { Enabled = true, Endpoint = DefaultEndpoint };
             }
             if (string.IsNullOrEmpty(settings.Endpoint))
             {

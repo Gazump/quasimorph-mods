@@ -44,7 +44,7 @@ Runs are kept locally in your dive log. There are no save slots used, but run hi
 [h2]Online Daily Ladder (NEW)[/h2]
 The Dive screen has a [b]LADDER[/b] tab showing one global daily leaderboard across all difficulties, with each entry showing the difficulty it was earned on. Ranked runs are Daily Dives only - the random mode stays offline.
 
-Submitting your runs is [b]opt-in and off by default[/b]. Flip [b]SUBMIT MY DIVES[/b] on the ladder tab (or use the [i]rogue_ladder[/i] console command) to join in. When enabled, a finished daily dive sends your Steam name, Steam ID and run stats to the ladder server; your Steam ID is used once to keep one best score per player per day and is stored only as an anonymous hash, never raw. Reading the board sends nothing about you. Turn it off any time and nothing further is sent.
+Submission is [b]on by default[/b] so the board fills up - turn it off any time with [b]SUBMIT MY DIVES[/b] on the ladder tab (or the [i]rogue_ladder[/i] console command) and nothing further is sent. When on, a finished daily dive sends your Steam name, Steam ID and run stats to the ladder server; your Steam ID is used once to keep one best score per player per day and is stored only as an anonymous hash, never raw. Reading the board sends nothing about you.
 
 Other mods are welcome on the ladder - runs made with other mods active simply carry a [b]*[/b] on the board so everyone can see it. Console cheats disable scoring and ladder submission for that run entirely.
 
