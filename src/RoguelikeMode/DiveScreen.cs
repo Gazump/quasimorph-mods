@@ -45,9 +45,7 @@ namespace RoguelikeMode
         private static Transform _operatorSection;
         private static TextMeshProUGUI _logText;
         private static TextMeshProUGUI _ladderText;
-        private static TextMeshProUGUI _rightHeader;
         private static CommonButton _ladderToggle;
-        private static int _rightTab;
         private static string _fetchedKey = string.Empty;
 
         private static bool _daily = true;
@@ -55,11 +53,12 @@ namespace RoguelikeMode
         private static int _candidate;
         private static int _lengthIndex = 1;
         private static CommonButton _lengthButton;
+        private static CommonButton _tierButton;
 
         private static readonly List<(CommonButton button, bool daily)> _modeButtons = new List<(CommonButton, bool)>();
-        private static readonly List<(CommonButton button, RogueTier tier)> _tierButtons = new List<(CommonButton, RogueTier)>();
         private static readonly List<CommonButton> _operatorButtons = new List<CommonButton>();
-        private static readonly List<(CommonButton button, int tab)> _tabButtons = new List<(CommonButton, int)>();
+        private static readonly List<Image> _classIcons = new List<Image>();
+        private static readonly List<ClassTooltipHover> _classHovers = new List<ClassTooltipHover>();
 
         public static void Open(State state, CommonButton sourceButton)
         {
@@ -76,7 +75,6 @@ namespace RoguelikeMode
             _daily = true;
             _tier = RogueTier.Normal;
             _candidate = 0;
-            _rightTab = 0;
             _fetchedKey = string.Empty;
             RogueRun.PrepareDay(daily: true);
             RogueRunner.CaptureModEnvironment(_state);
@@ -95,13 +93,14 @@ namespace RoguelikeMode
                 _root = null;
             }
             _modeButtons.Clear();
-            _tierButtons.Clear();
             _operatorButtons.Clear();
-            _tabButtons.Clear();
+            _classIcons.Clear();
+            _classHovers.Clear();
             _logText = null;
             _ladderText = null;
-            _rightHeader = null;
             _ladderToggle = null;
+            _lengthButton = null;
+            _tierButton = null;
         }
 
         private static void Build()
@@ -158,18 +157,16 @@ namespace RoguelikeMode
             _modeButtons.Add((AddRowButton(leftPanel, "ui.dive.optdaily", () => SelectMode(true)), true));
             _modeButtons.Add((AddRowButton(leftPanel, "ui.dive.optrandom", () => SelectMode(false)), false));
             _lengthButton = AddRowButton(leftPanel, "ui.dive.length", CycleLength);
-
-            AddSectionHeader(leftPanel, "ui.dive.difficulty", "DIFFICULTY");
-            _tierButtons.Add((AddRowButton(leftPanel, "ui.dive.opteasy", () => SelectTier(RogueTier.Easy)), RogueTier.Easy));
-            _tierButtons.Add((AddRowButton(leftPanel, "ui.dive.optnormal", () => SelectTier(RogueTier.Normal)), RogueTier.Normal));
-            _tierButtons.Add((AddRowButton(leftPanel, "ui.dive.opthard", () => SelectTier(RogueTier.Hard)), RogueTier.Hard));
+            _tierButton = AddRowButton(leftPanel, "ui.dive.difficulty", CycleTier);
 
             AddSectionHeader(leftPanel, "ui.dive.operator", "OPERATOR");
             _operatorSection = leftPanel;
             for (int i = 0; i < 3; i++)
             {
                 int index = i;
-                _operatorButtons.Add(AddRowButton(leftPanel, "ui.dive.merc" + i, () => SelectOperator(index)));
+                CommonButton operatorButton = AddRowButton(leftPanel, "ui.dive.merc" + i, () => SelectOperator(index));
+                _operatorButtons.Add(operatorButton);
+                AddClassIcon(operatorButton);
             }
 
             AddSectionHeader(leftPanel, "ui.dive.spacer", " ");
@@ -183,14 +180,25 @@ namespace RoguelikeMode
             AddRowButton(leftPanel, "ui.dive.close", CloseClicked);
             LocalizationInjector.Set("ui.dive.close", "< CLOSE");
 
-            Transform tabRow = AddTabRow(rightPanel);
-            _tabButtons.Add((AddRowButton(tabRow, "ui.dive.tablog", () => SelectTab(0)), 0));
-            _tabButtons.Add((AddRowButton(tabRow, "ui.dive.tabladder", () => SelectTab(1)), 1));
+            GameObject columns = new GameObject("DiveColumns", typeof(RectTransform));
+            columns.transform.SetParent(rightPanel, worldPositionStays: false);
+            HorizontalLayoutGroup columnsLayout = columns.AddComponent<HorizontalLayoutGroup>();
+            columnsLayout.spacing = 20f;
+            columnsLayout.childControlWidth = true;
+            columnsLayout.childControlHeight = true;
+            columnsLayout.childForceExpandWidth = true;
+            columnsLayout.childForceExpandHeight = true;
+            LayoutElement columnsElement = columns.AddComponent<LayoutElement>();
+            columnsElement.flexibleHeight = 1f;
 
-            _rightHeader = AddSectionHeader(rightPanel, "ui.dive.logheader", "DIVE LOG");
-            _logText = AddPanelText(rightPanel, _rightHeader.fontSize);
-            _ladderText = AddPanelText(rightPanel, _rightHeader.fontSize);
-            _ladderToggle = AddRowButton(rightPanel, "ui.dive.laddertoggle", ToggleLadder);
+            Transform logColumn = AddColumn(columns.transform);
+            Transform ladderColumn = AddColumn(columns.transform);
+
+            TextMeshProUGUI logHeader = AddSectionHeader(logColumn, "ui.dive.logheader", "DIVE LOG");
+            _logText = AddScrollableText(logColumn, logHeader.fontSize);
+            TextMeshProUGUI ladderHeader = AddSectionHeader(ladderColumn, "ui.dive.ladderheader", "DAILY LADDER");
+            _ladderText = AddScrollableText(ladderColumn, ladderHeader.fontSize);
+            _ladderToggle = AddRowButton(ladderColumn, "ui.dive.laddertoggle", ToggleLadder);
 
             _root.AddComponent<DiveTicker>();
         }
@@ -229,35 +237,76 @@ namespace RoguelikeMode
             return rect;
         }
 
-        private static Transform AddTabRow(Transform parent)
+        private static Transform AddColumn(Transform parent)
         {
-            GameObject row = new GameObject("DiveTabs", typeof(RectTransform));
-            row.transform.SetParent(parent, worldPositionStays: false);
-            HorizontalLayoutGroup layout = row.AddComponent<HorizontalLayoutGroup>();
-            layout.spacing = 10f;
+            GameObject column = new GameObject("DiveColumn", typeof(RectTransform));
+            column.transform.SetParent(parent, worldPositionStays: false);
+            VerticalLayoutGroup layout = column.AddComponent<VerticalLayoutGroup>();
+            layout.spacing = 8f;
             layout.childControlWidth = true;
             layout.childControlHeight = true;
             layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = true;
-            LayoutElement element = row.AddComponent<LayoutElement>();
-            element.preferredHeight = Mathf.Max(_uiFontSize * 2.2f, 30f);
-            return row.transform;
+            layout.childForceExpandHeight = false;
+            return column.transform;
         }
 
-        private static TextMeshProUGUI AddPanelText(Transform parent, float headerFontSize)
+        private static TextMeshProUGUI AddScrollableText(Transform parent, float headerFontSize)
         {
-            GameObject holder = CloneLabel(parent);
-            TextMeshProUGUI text = holder.GetComponent<TextMeshProUGUI>();
-            LayoutElement element = holder.AddComponent<LayoutElement>();
+            GameObject viewport = new GameObject("DiveScroll", typeof(RectTransform));
+            viewport.transform.SetParent(parent, worldPositionStays: false);
+            LayoutElement element = viewport.AddComponent<LayoutElement>();
             element.flexibleHeight = 1f;
+            viewport.AddComponent<RectMask2D>();
+            ScrollRect scroll = viewport.AddComponent<ScrollRect>();
+            GameObject holder = CloneLabel(viewport.transform);
+            TextMeshProUGUI text = holder.GetComponent<TextMeshProUGUI>();
             text.enableAutoSizing = false;
             text.enableWordWrapping = true;
-            text.overflowMode = TextOverflowModes.Truncate;
+            text.overflowMode = TextOverflowModes.Overflow;
             text.alignment = TextAlignmentOptions.TopLeft;
             text.fontSize = headerFontSize * 0.9f;
             text.lineSpacing = 8f;
             UnityEngine.Object.Destroy(holder.GetComponent<LocalizableLabel>());
+            RectTransform content = holder.transform as RectTransform;
+            content.anchorMin = new Vector2(0f, 1f);
+            content.anchorMax = new Vector2(1f, 1f);
+            content.pivot = new Vector2(0.5f, 1f);
+            content.offsetMin = new Vector2(0f, content.offsetMin.y);
+            content.offsetMax = new Vector2(0f, content.offsetMax.y);
+            content.anchoredPosition = Vector2.zero;
+            ContentSizeFitter fitter = holder.AddComponent<ContentSizeFitter>();
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            scroll.content = content;
+            scroll.viewport = viewport.transform as RectTransform;
+            scroll.horizontal = false;
+            scroll.vertical = true;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 30f;
             return text;
+        }
+
+        private static void AddClassIcon(CommonButton button)
+        {
+            float size = Mathf.Max(_uiFontSize * 1.6f, 24f);
+            GameObject iconObject = new GameObject("DiveClassIcon", typeof(RectTransform), typeof(Image));
+            RectTransform iconRect = iconObject.transform as RectTransform;
+            iconRect.SetParent(button.transform, worldPositionStays: false);
+            iconRect.anchorMin = new Vector2(1f, 0.5f);
+            iconRect.anchorMax = new Vector2(1f, 0.5f);
+            iconRect.pivot = new Vector2(1f, 0.5f);
+            iconRect.sizeDelta = new Vector2(size, size);
+            iconRect.anchoredPosition = new Vector2(-10f, 0f);
+            Image image = iconObject.GetComponent<Image>();
+            image.preserveAspect = true;
+            image.raycastTarget = true;
+            image.enabled = false;
+            _classIcons.Add(image);
+            _classHovers.Add(iconObject.AddComponent<ClassTooltipHover>());
+            if (button.CaptionLabel != null && button.CaptionLabel.Text != null)
+            {
+                TextMeshProUGUI caption = button.CaptionLabel.Text;
+                caption.margin = new Vector4(caption.margin.x, caption.margin.y, size + 16f, caption.margin.w);
+            }
         }
 
         private static GameObject CloneLabel(Transform parent)
@@ -337,17 +386,10 @@ namespace RoguelikeMode
             RefreshRightPanel();
         }
 
-        private static void SelectTier(RogueTier tier)
+        private static void CycleTier()
         {
-            _tier = tier;
+            _tier = (RogueTier)(((int)_tier + 1) % 3);
             RefreshSelections();
-            RefreshRightPanel();
-        }
-
-        private static void SelectTab(int tab)
-        {
-            _rightTab = tab;
-            RefreshRightPanel();
         }
 
         private static void CycleLength()
@@ -368,7 +410,7 @@ namespace RoguelikeMode
 
         public static void NotifyLadderChanged()
         {
-            if (_root == null || _rightTab != 1)
+            if (_root == null)
             {
                 return;
             }
@@ -400,6 +442,14 @@ namespace RoguelikeMode
                 }
                 hover.Merc = mercenary;
                 hover.Profile = Data.MercenaryProfiles.GetRecord(mercenary.ProfileId);
+                if (i < _classIcons.Count)
+                {
+                    MercenaryClassDescriptor classDescriptor = Data.MercenaryClasses.GetRecord(mercenary.MercClassId)?.ContentDescriptor as MercenaryClassDescriptor;
+                    Sprite classSprite = classDescriptor != null ? (classDescriptor.SmallIcon != null ? classDescriptor.SmallIcon : classDescriptor.Icon) : null;
+                    _classIcons[i].sprite = classSprite;
+                    _classIcons[i].enabled = classSprite != null;
+                    _classHovers[i].ClassId = mercenary.MercClassId;
+                }
             }
         }
 
@@ -415,15 +465,13 @@ namespace RoguelikeMode
             {
                 _lengthButton.gameObject.SetActive(!_daily);
                 int floors = RogueConfig.FloorChoices[_lengthIndex];
-                LocalizationInjector.Set("ui.dive.length", $"LENGTH: {floors} FLOORS - {RogueConfig.FloorChoiceLabels[_lengthIndex]}");
+                LocalizationInjector.Set("ui.dive.length", $"LENGTH:  < {floors} FLOORS - {RogueConfig.FloorChoiceLabels[_lengthIndex]} >");
                 _lengthButton.ChangeLabel("ui.dive.length");
             }
-            LocalizationInjector.Set("ui.dive.opteasy", Caption("EASY", _tier == RogueTier.Easy));
-            LocalizationInjector.Set("ui.dive.optnormal", Caption("NORMAL", _tier == RogueTier.Normal));
-            LocalizationInjector.Set("ui.dive.opthard", Caption("HARD", _tier == RogueTier.Hard));
-            foreach ((CommonButton button, RogueTier tier) in _tierButtons)
+            if (_tierButton != null)
             {
-                button.ChangeLabel(tier == RogueTier.Easy ? "ui.dive.opteasy" : (tier == RogueTier.Normal ? "ui.dive.optnormal" : "ui.dive.opthard"));
+                LocalizationInjector.Set("ui.dive.difficulty", $"DIFFICULTY:  < {_tier.ToString().ToUpperInvariant()} >");
+                _tierButton.ChangeLabel("ui.dive.difficulty");
             }
             List<Mercenary> candidates = RogueRunner.GetCandidateMercs(_state);
             for (int i = 0; i < _operatorButtons.Count && i < candidates.Count; i++)
@@ -442,50 +490,15 @@ namespace RoguelikeMode
 
         private static void RefreshRightPanel()
         {
-            bool ladder = _rightTab == 1;
-
-            LocalizationInjector.Set("ui.dive.tablog", Caption("DIVE LOG", !ladder));
-            LocalizationInjector.Set("ui.dive.tabladder", Caption("LADDER", ladder));
-            foreach ((CommonButton button, int tab) in _tabButtons)
-            {
-                button.ChangeLabel(tab == 0 ? "ui.dive.tablog" : "ui.dive.tabladder");
-            }
-
-            LocalizationInjector.Set("ui.dive.logheader", ladder ? "DAILY LADDER" : "DIVE LOG");
-            if (_rightHeader != null)
-            {
-                LocalizableLabel headerLabel = _rightHeader.gameObject.GetComponent<LocalizableLabel>();
-                if (headerLabel != null)
-                {
-                    headerLabel.ChangeLabel("ui.dive.logheader");
-                }
-            }
-
-            if (_logText != null)
-            {
-                _logText.gameObject.SetActive(!ladder);
-            }
-            if (_ladderText != null)
-            {
-                _ladderText.gameObject.SetActive(ladder);
-            }
             if (_ladderToggle != null)
             {
-                _ladderToggle.gameObject.SetActive(ladder);
                 LocalizationInjector.Set("ui.dive.laddertoggle",
                     LadderConfig.Enabled ? "SUBMIT MY DIVES: ON" : "SUBMIT MY DIVES: OFF");
                 _ladderToggle.ChangeLabel("ui.dive.laddertoggle");
             }
-
-            if (ladder)
-            {
-                EnsureLadderFetched();
-                RefreshLadderText();
-            }
-            else
-            {
-                RefreshLog();
-            }
+            RefreshLog();
+            EnsureLadderFetched();
+            RefreshLadderText();
         }
 
         private static string LadderDay()
